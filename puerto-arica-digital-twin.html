@@ -515,7 +515,11 @@
 
 <script type="module">
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { OrbitControls }   from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer }  from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
+import { SSAOPass }        from 'three/addons/postprocessing/SSAOPass.js';
+import { OutputPass }      from 'three/addons/postprocessing/OutputPass.js';
 
 // ── Scene bootstrap ─────────────────────────────────────────────────────────
 const canvas  = document.getElementById('three-canvas');
@@ -545,11 +549,14 @@ controls.maxPolarAngle  = Math.PI / 2.1;
 controls.minDistance    = 20;
 controls.maxDistance    = 200;
 
+let composer; // forward-declared so resize() can safely check it after init
+
 function resize() {
   const w = wrap.clientWidth, h = wrap.clientHeight;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  if (composer) composer.setSize(w, h);
 }
 resize();
 window.addEventListener('resize', resize);
@@ -647,7 +654,9 @@ for (const rz of [-16, -4]) {
 }
 
 // ── Container Ship ────────────────────────────────────────────────────────────
-const SHIP_X = 0, SHIP_Y = 0, SHIP_Z = -10;
+// SHIP_Z = 18 coloca el casco (22 unidades de ancho en Z) en z=7..29,
+// dejando un gap de ~2 unidades frente a la cara marítima del muelle (z=5) → sin clipping.
+const SHIP_X = 0, SHIP_Y = 0, SHIP_Z = 18;
 
 // Keel / Hull bottom  (sits at waterline ~y=0, hull goes down)
 // Main hull body
@@ -659,20 +668,24 @@ box(140, 4, 22, MAT.hullRed, SHIP_X, SHIP_Y + 1, SHIP_Z);
 
 // Hull bow taper (simple wedge using scaled box)
 const bowGeo = new THREE.CylinderGeometry(0, 11, 18, 4, 1);
+bowGeo.computeVertexNormals(); // recalcula normales tras el escalado no uniforme
 const bow = new THREE.Mesh(bowGeo, MAT.hullDark);
 bow.position.set(SHIP_X + 70, SHIP_Y + 5, SHIP_Z);
 bow.rotation.set(Math.PI/2 * 0, 0, -Math.PI/2);
 bow.scale.set(1, 0.55, 1);
-bow.castShadow = true;
+bow.castShadow    = true;
+bow.receiveShadow = true;
 scene.add(bow);
 
 // Stern
 const sternGeo = new THREE.CylinderGeometry(0, 11, 12, 4, 1);
+sternGeo.computeVertexNormals(); // recalcula normales tras el escalado no uniforme
 const stern = new THREE.Mesh(sternGeo, MAT.hullDark);
 stern.position.set(SHIP_X - 70, SHIP_Y + 5, SHIP_Z);
 stern.rotation.set(0, 0, Math.PI/2);
 stern.scale.set(1, 0.55, 1);
-stern.castShadow = true;
+stern.castShadow    = true;
+stern.receiveShadow = true;
 scene.add(stern);
 
 // Main deck
@@ -848,36 +861,63 @@ for (let col = 0; col < 5; col++) {
 }
 
 // ── Lighting ──────────────────────────────────────────────────────────────────
-// Ambient
-scene.add(new THREE.AmbientLight(0x1a2535, 1.2));
+// Hemisférica cielo/suelo: sky azul pacífico → agua oscura (gradiente costero)
+const hemiLight = new THREE.HemisphereLight(0x7ab8d4, 0x1a3040, 0.5);
+scene.add(hemiLight);
 
-// Main directional (sun angle)
-const dirLight = new THREE.DirectionalLight(0xdde8f0, 1.8);
+// Ambiente suave de entorno costero Arica
+scene.add(new THREE.AmbientLight(0x263850, 1.5));
+
+// Sol principal — ángulo de tarde, lat ~18°S
+const dirLight = new THREE.DirectionalLight(0xfff4e0, 1.6);
 dirLight.position.set(60, 80, 40);
 dirLight.castShadow = true;
-dirLight.shadow.mapSize.set(2048, 2048);
-dirLight.shadow.camera.near = 1;
-dirLight.shadow.camera.far  = 300;
-dirLight.shadow.camera.left = dirLight.shadow.camera.bottom = -120;
-dirLight.shadow.camera.right = dirLight.shadow.camera.top  =  120;
+dirLight.shadow.mapSize.set(4096, 4096);
+dirLight.shadow.camera.near   = 1;
+dirLight.shadow.camera.far    = 400;
+dirLight.shadow.camera.left   = -160;
+dirLight.shadow.camera.right  =  160;
+dirLight.shadow.camera.bottom = -80;
+dirLight.shadow.camera.top    =  160;
+// bias negativo fino para eliminar shadow acne en contacto casco/muelle
+dirLight.shadow.bias       = -0.0005;
+dirLight.shadow.normalBias =  0.02;
 scene.add(dirLight);
 
-// Fill light (ocean reflection)
-const fillLight = new THREE.DirectionalLight(0x0a2a4a, 0.6);
-fillLight.position.set(-40, 20, -40);
+// Fill desde el lado marítimo (reflexión del Pacífico)
+const fillLight = new THREE.DirectionalLight(0x1a4a7a, 0.7);
+fillLight.position.set(-40, 20, 60);
 scene.add(fillLight);
 
-// Crane work lights
+// Luces de trabajo de la grúa
 for (const lx of [-8, 8]) {
   const wl = new THREE.PointLight(0xffe8c0, 1.5, 30, 2);
   wl.position.set(CRANE_X + lx, boomY + 2, CRANE_Z - 10);
   scene.add(wl);
 }
 
-// Dock ambient
-const dockLight = new THREE.PointLight(0xb0c8e0, 0.8, 80, 2);
-dockLight.position.set(0, 20, -10);
+// Ambiente del borde del muelle — ilumina cara marítima y lámina de agua
+const dockLight = new THREE.PointLight(0xb0c8e0, 0.9, 100, 2);
+dockLight.position.set(0, 18, 4);
 scene.add(dockLight);
+
+// Rebote solar sobre el casco del buque desde el agua
+const shipLight = new THREE.PointLight(0xd0e8ff, 0.7, 120, 2);
+shipLight.position.set(0, 25, 18);
+scene.add(shipLight);
+
+// ── Post-processing: SSAO (Oclusión Ambiental de Pantalla) ───────────────────
+composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const ssaoPass = new SSAOPass(scene, camera, wrap.clientWidth, wrap.clientHeight);
+ssaoPass.kernelRadius = 12;   // radio de muestreo en unidades de escena
+ssaoPass.minDistance  = 0.001;
+ssaoPass.maxDistance  = 0.25; // alcance de oclusión; cubre contacto casco-muelle
+ssaoPass.output       = SSAOPass.OUTPUT.Default;
+composer.addPass(ssaoPass);
+
+composer.addPass(new OutputPass()); // convierte linear→sRGB y aplica toneMapping
 
 // ── Raycaster for tooltips ────────────────────────────────────────────────────
 const raycaster = new THREE.Raycaster();
@@ -919,7 +959,7 @@ phaseBtns.forEach(btn => {
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
-  renderer.render(scene, camera);
+  composer.render(); // SSAO + OutputPass en lugar de render directo
 }
 animate();
 </script>
