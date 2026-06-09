@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Puerto de Arica — Digital Twin</title>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:      #0a0d12;
+      --bg-panel:     #0f1318;
+      --bg-card:      #141920;
+      --border:       #1e2530;
+      --border-hi:    #2a3545;
+      --accent:       #1a6fa8;
+      --accent-dim:   #0f3d5e;
+      --accent-glow:  #22aaff;
+      --text-primary: #d4dce8;
+      --text-muted:   #5a6a7e;
+      --text-dim:     #3a4a5e;
+      --warn:         #c8960a;
+      --success:      #1a7a4a;
+      --danger:       #8a2020;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+      overflow: hidden;
+    }
+
+    /* ── Layout ─────────────────────────────────────── */
+    #app {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      grid-template-rows: 40px 1fr 60px;
+      height: 100vh;
+      gap: 0;
+    }
+
+    /* ── Top Bar ─────────────────────────────────────── */
+    #topbar {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+    #topbar .brand {
+      display: flex; align-items: center; gap: 10px;
+    }
+    #topbar .brand .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent-glow);
+      box-shadow: 0 0 8px var(--accent-glow);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+    #topbar .brand h1 {
+      font-size: 13px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-primary);
+    }
+    #topbar .brand span {
+      font-size: 11px; color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+    #topbar .status-row {
+      display: flex; gap: 20px; align-items: center;
+    }
+    .status-chip {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 10px; letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    .status-chip .led {
+      width: 6px; height: 6px; border-radius: 50%;
+    }
+    .led-green  { background: #22cc66; box-shadow: 0 0 5px #22cc66; }
+    .led-yellow { background: #ccaa22; box-shadow: 0 0 5px #ccaa22; }
+    .led-red    { background: #cc2222; box-shadow: 0 0 5px #cc2222; }
+
+    /* ── Canvas ──────────────────────────────────────── */
+    #canvas-wrap {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-deep);
+    }
+    #canvas-wrap canvas { display: block; width: 100% !important; height: 100% !important; }
+
+    .canvas-overlay {
+      position: absolute; top: 12px; left: 12px;
+      display: flex; flex-direction: column; gap: 6px;
+      pointer-events: none;
+    }
+    .overlay-badge {
+      padding: 4px 10px;
+      background: rgba(10,13,18,0.75);
+      border: 1px solid var(--border-hi);
+      border-left: 2px solid var(--accent);
+      font-size: 10px; color: var(--text-muted);
+      letter-spacing: 0.06em;
+      backdrop-filter: blur(4px);
+    }
+    .overlay-badge strong { color: var(--accent-glow); }
+
+    /* ── Side Panel ──────────────────────────────────── */
+    #side-panel {
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    #side-panel::-webkit-scrollbar { width: 4px; }
+    #side-panel::-webkit-scrollbar-track { background: var(--bg-deep); }
+    #side-panel::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+    .panel-section {
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px 8px;
+      cursor: pointer; user-select: none;
+    }
+    .panel-section-header .label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .panel-section-header .tag {
+      font-size: 9px; padding: 2px 6px;
+      background: var(--accent-dim);
+      color: var(--accent-glow);
+      border-radius: 2px;
+    }
+
+    .panel-section-body { padding: 0 14px 12px; }
+
+    /* Metric rows */
+    .metric-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .metric-row:last-child { border-bottom: none; }
+    .metric-row .mkey {
+      font-size: 10px; color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+    .metric-row .mval {
+      font-size: 11px; font-weight: 600;
+      color: var(--text-primary);
+      text-align: right;
+    }
+    .metric-row .mval.accent { color: var(--accent-glow); }
+    .metric-row .mval.warn   { color: var(--warn); }
+
+    /* Mini bar */
+    .mini-bar-wrap { margin-top: 4px; }
+    .mini-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 9px; color: var(--text-dim);
+      margin-bottom: 3px;
+    }
+    .mini-bar {
+      height: 3px; background: var(--border);
+      border-radius: 2px; overflow: hidden;
+    }
+    .mini-bar-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-glow));
+    }
+
+    /* Knowledge badges */
+    .kb-item {
+      display: flex; gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+    .kb-item:last-child { border-bottom: none; }
+    .kb-icon {
+      width: 22px; height: 22px; min-width: 22px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-hi);
+      border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+    }
+    .kb-text { font-size: 10px; line-height: 1.5; color: var(--text-muted); }
+    .kb-text strong { color: var(--text-primary); display: block; font-size: 10px; }
+
+    /* Berth status */
+    .berth-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .berth-row:last-child { border-bottom: none; }
+    .berth-id {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+      color: var(--text-dim); min-width: 30px;
+    }
+    .berth-bar {
+      flex: 1; height: 14px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 2px;
+      overflow: hidden; position: relative;
+    }
+    .berth-fill {
+      height: 100%; transition: width 0.5s;
+      display: flex; align-items: center;
+      padding-left: 4px;
+      font-size: 8px; font-weight: 600;
+      white-space: nowrap;
+    }
+    .berth-fill.active { background: var(--accent-dim); color: var(--accent-glow); }
+    .berth-fill.idle   { background: #1a2010; color: #446633; }
+    .berth-fill.maint  { background: #2a1800; color: #8a5500; }
+
+    /* ── Bottom Bar ──────────────────────────────────── */
+    #bottom-bar {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      padding: 0 16px;
+      z-index: 10;
+    }
+
+    .phase-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-hi);
+      border-radius: 3px;
+      color: var(--text-muted);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .phase-btn:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+    .phase-btn.active {
+      background: var(--accent-dim);
+      border-color: var(--accent-glow);
+      color: var(--accent-glow);
+      box-shadow: 0 0 10px rgba(34,170,255,0.12);
+    }
+    .phase-btn.pause {
+      border-color: var(--danger);
+      color: #cc4444;
+    }
+    .phase-btn.pause:hover {
+      background: #200808;
+    }
+    .phase-num {
+      font-size: 9px; font-weight: 700;
+      padding: 1px 4px; border-radius: 2px;
+      background: rgba(255,255,255,0.06);
+      letter-spacing: 0.08em;
+    }
+
+    .separator { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+
+    /* ── Tooltip overlay ─────────────────────────────── */
+    #tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(10,13,18,0.9);
+      border: 1px solid var(--border-hi);
+      border-left: 2px solid var(--accent-glow);
+      padding: 6px 10px;
+      font-size: 10px;
+      color: var(--text-primary);
+      border-radius: 2px;
+      backdrop-filter: blur(6px);
+      display: none;
+      white-space: nowrap;
+      z-index: 100;
+    }
+    #tooltip .tt-title { font-weight: 700; color: var(--accent-glow); margin-bottom: 2px; }
+    #tooltip .tt-line  { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Top Bar ── -->
+  <header id="topbar">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <h1>Puerto de Arica &mdash; Digital Twin</h1>
+        <span>TERMINAL DE CONTENEDORES &nbsp;|&nbsp; MODO: ESTÁTICO / VISUALIZACIÓN</span>
+      </div>
+    </div>
+    <div class="status-row">
+      <div class="status-chip"><div class="led led-green"></div>SCADA ONLINE</div>
+      <div class="status-chip"><div class="led led-yellow"></div>GRÚA G-01 STAND-BY</div>
+      <div class="status-chip"><div class="led led-green"></div>BUQUE ATRACADO</div>
+      <div class="status-chip"><div class="led led-red"></div>FASE: —</div>
+    </div>
+  </header>
+
+  <!-- ── Canvas ── -->
+  <div id="canvas-wrap">
+    <canvas id="three-canvas"></canvas>
+
+    <div class="canvas-overlay">
+      <div class="overlay-badge">
+        COORD &nbsp;<strong>18°28'S 70°19'O</strong>
+      </div>
+      <div class="overlay-badge">
+        CÁMARA &nbsp;<strong>PERSPECTIVA / ÓRBITA</strong>
+      </div>
+      <div class="overlay-badge">
+        ESCALA &nbsp;<strong>1 : 1 (m)</strong>
+      </div>
+    </div>
+
+    <div id="tooltip">
+      <div class="tt-title" id="tt-title"></div>
+      <div class="tt-line"  id="tt-line1"></div>
+      <div class="tt-line"  id="tt-line2"></div>
+    </div>
+  </div>
+
+  <!-- ── Side Panel ── -->
+  <aside id="side-panel">
+
+    <!-- Métricas Portuarias -->
+    <div class="panel-section">
+      <div class="panel-section-header">
+        <span class="label">Métricas Portuarias</span>
+        <span class="tag">2024</span>
+      </div>
+      <div class="panel-section-body">
+        <div class="metric-row">
+          <span class="mkey">Capacidad Anual</span>
+          <span class="mval accent">220,000 TEU/año</span>
+        </div>
+        <div class="mini-bar-wrap">
+          <div class="mini-bar-label"><span>Utilización actual</span><span>64%</span></div>
+          <div class="mini-bar"><div class="mini-bar-fill" style="width:64%"></div></div>
+        </div>
+
+        <div class="metric-row" style="margin-top:8px">
+          <span class="mkey">Eslora máx. admisible</span>
+          <span class="mval">280 m</span>
+        </div>
+        <div class="metric-row">
+          <span class="mkey">Calado máximo</span>
+          <span class="mval">11.2 m</span>
+        </div>
+        <div class="metric-row">
+          <span class="mkey">Grúas pórtico (RTG)</span>
+          <span class="mval">3 unidades</span>
+        </div>
+        <div class="metric-row">
+          <span class="mkey">Superficie patio (m²)</span>
+          <span class="mval">48,000 m²</span>
+        </div>
+        <div class="metric-row">
+          <span class="mkey">TEU en buque actual</span>
+          <span class="mval warn">1,240 TEU</span>
+        </div>
+        <div class="metric-row">
+          <span class="mkey">Productividad grúa</span>
+          <span class="mval">22 mov/h</span>
+        </div>
+        <div class="metric-row">
+          <span class="mkey">Tiempo en muelle (ETA)</span>
+          <span class="mval">18 h</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado de Berths -->
+    <div class="panel-section">
+      <div class="panel-section-header">
+        <span class="label">Estado de Sitios</span>
+        <span class="tag">LIVE</span>
+      </div>
+      <div class="panel-section-body">
+        <div class="berth-row">
+          <span class="berth-id">S-01</span>
+          <div class="berth-bar">
+            <div class="berth-fill active" style="width:100%">EVER GLORY &mdash; ATR.</div>
+          </div>
+        </div>
+        <div class="berth-row">
+          <span class="berth-id">S-02</span>
+          <div class="berth-bar">
+            <div class="berth-fill idle" style="width:30%">LIBRE</div>
+          </div>
+        </div>
+        <div class="berth-row">
+          <span class="berth-id">S-03</span>
+          <div class="berth-bar">
+            <div class="berth-fill maint" style="width:60%">MANTENCIÓN</div>
+          </div>
+        </div>
+        <div class="berth-row">
+          <span class="berth-id">S-04</span>
+          <div class="berth-bar">
+            <div class="berth-fill idle" style="width:30%">LIBRE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Base de Conocimiento -->
+    <div class="panel-section">
+      <div class="panel-section-header">
+        <span class="label">Base de Conocimiento</span>
+      </div>
+      <div class="panel-section-body">
+
+        <div class="kb-item">
+          <div class="kb-icon">⚓</div>
+          <div class="kb-text">
+            <strong>Puerto de Arica</strong>
+            Principal terminal multimodal del norte de Chile. Conecta Bolivia,
+            Perú y el sur del continente. Zona Franca integrada.
+          </div>
+        </div>
+
+        <div class="kb-item">
+          <div class="kb-icon">🏗️</div>
+          <div class="kb-text">
+            <strong>Grúa Pórtico (Gantry)</strong>
+            Opera sobre rieles paralelos al muelle. Spreader telescópico
+            capaz de manejar contenedores 20' y 40'. Alcance de pluma: 45 m.
+          </div>
+        </div>
+
+        <div class="kb-item">
+          <div class="kb-icon">📦</div>
+          <div class="kb-text">
+            <strong>TEU (Twenty-foot Equiv. Unit)</strong>
+            Unidad estándar de medición. 1 TEU = contenedor de 20 pies
+            (6.1 × 2.4 × 2.6 m). Los buques Panamax cargan ≈ 4,000 TEU.
+          </div>
+        </div>
+
+        <div class="kb-item">
+          <div class="kb-icon">🚢</div>
+          <div class="kb-text">
+            <strong>Buque Portacontenedores</strong>
+            Clase Feeder (120–180 m). Bahías numeradas de proa a popa.
+            Estiba bajo cubierta (holds) y sobre cubierta (deck).
+          </div>
+        </div>
+
+        <div class="kb-item">
+          <div class="kb-icon">📡</div>
+          <div class="kb-text">
+            <strong>Digital Twin</strong>
+            Réplica virtual en tiempo real. Integra sensores IoT, AIS marítimo
+            y datos SCADA para optimizar logística y predecir incidencias.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── Bottom Phase Bar ── -->
+  <footer id="bottom-bar">
+    <button class="phase-btn pause" id="btn-pause">
+      ⏸ PAUSAR
+    </button>
+    <div class="separator"></div>
+    <button class="phase-btn active" id="btn-p1">
+      <span class="phase-num">01</span> ARRIBO
+    </button>
+    <button class="phase-btn" id="btn-p2">
+      <span class="phase-num">02</span> DESCARGA
+    </button>
+    <button class="phase-btn" id="btn-p3">
+      <span class="phase-num">03</span> TRASLADO
+    </button>
+    <button class="phase-btn" id="btn-p4">
+      <span class="phase-num">04</span> APILADO
+    </button>
+  </footer>
+
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ── Scene bootstrap ─────────────────────────────────────────────────────────
+const canvas  = document.getElementById('three-canvas');
+const wrap    = document.getElementById('canvas-wrap');
+const tooltip = document.getElementById('tooltip');
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+renderer.toneMapping       = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.85;
+renderer.setClearColor(0x080c12);
+
+const scene  = new THREE.Scene();
+scene.fog    = new THREE.FogExp2(0x0a0e16, 0.012);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.5, 600);
+camera.position.set(90, 55, 90);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 4, 0);
+controls.enableDamping  = true;
+controls.dampingFactor  = 0.06;
+controls.minPolarAngle  = 0.1;
+controls.maxPolarAngle  = Math.PI / 2.1;
+controls.minDistance    = 20;
+controls.maxDistance    = 200;
+
+function resize() {
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ── Materials ────────────────────────────────────────────────────────────────
+const MAT = {
+  ocean:      new THREE.MeshStandardMaterial({ color: 0x06192b, roughness: 0.2, metalness: 0.1 }),
+  dock:       new THREE.MeshStandardMaterial({ color: 0x2a2f38, roughness: 0.9, metalness: 0.05 }),
+  dockEdge:   new THREE.MeshStandardMaterial({ color: 0x1e2530, roughness: 0.9, metalness: 0.1 }),
+  hullDark:   new THREE.MeshStandardMaterial({ color: 0x1a1f2b, roughness: 0.7, metalness: 0.3 }),
+  hullRed:    new THREE.MeshStandardMaterial({ color: 0x5a1010, roughness: 0.8, metalness: 0.1 }),
+  deckPlate:  new THREE.MeshStandardMaterial({ color: 0x303840, roughness: 0.8, metalness: 0.2 }),
+  superstruc: new THREE.MeshStandardMaterial({ color: 0x3a4a5a, roughness: 0.6, metalness: 0.3 }),
+  steel:      new THREE.MeshStandardMaterial({ color: 0x4a5560, roughness: 0.5, metalness: 0.7 }),
+  steelDark:  new THREE.MeshStandardMaterial({ color: 0x2a3040, roughness: 0.6, metalness: 0.6 }),
+  cranePaint: new THREE.MeshStandardMaterial({ color: 0xd4a020, roughness: 0.4, metalness: 0.5 }),
+  rail:       new THREE.MeshStandardMaterial({ color: 0x606878, roughness: 0.3, metalness: 0.9 }),
+  cable:      new THREE.MeshStandardMaterial({ color: 0x888898, roughness: 0.4, metalness: 0.8 }),
+  spreader:   new THREE.MeshStandardMaterial({ color: 0xcc9900, roughness: 0.4, metalness: 0.6 }),
+  teuColors: [
+    new THREE.MeshStandardMaterial({ color: 0x2a4060, roughness: 0.7, metalness: 0.2 }),
+    new THREE.MeshStandardMaterial({ color: 0x1e3a2a, roughness: 0.7, metalness: 0.2 }),
+    new THREE.MeshStandardMaterial({ color: 0x3a2a20, roughness: 0.7, metalness: 0.2 }),
+    new THREE.MeshStandardMaterial({ color: 0x3a3020, roughness: 0.7, metalness: 0.2 }),
+    new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.7, metalness: 0.2 }),
+    new THREE.MeshStandardMaterial({ color: 0x381818, roughness: 0.7, metalness: 0.2 }),
+  ],
+};
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function box(w, h, d, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z);
+  m.rotation.set(rx, ry, rz);
+  m.castShadow = m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+function cyl(rt, rb, h, seg, mat, x=0, y=0, z=0) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
+  m.position.set(x, y, z);
+  m.castShadow = m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+function line3(pts, mat) {
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  const l = new THREE.Line(geo, mat);
+  scene.add(l);
+  return l;
+}
+const lineMat = new THREE.LineBasicMaterial({ color: 0x888898 });
+
+// ── Ocean ─────────────────────────────────────────────────────────────────────
+const oceanGeo = new THREE.PlaneGeometry(500, 500, 1, 1);
+const ocean = new THREE.Mesh(oceanGeo, MAT.ocean);
+ocean.rotation.x = -Math.PI / 2;
+ocean.position.y = 0;
+ocean.receiveShadow = true;
+ocean.userData = { name: 'Océano Pacífico', info1: 'Temperatura: 18°C', info2: 'Oleaje: 0.5 m' };
+scene.add(ocean);
+
+// subtle grid on ocean
+const gridHelper = new THREE.GridHelper(200, 40, 0x0a2a4a, 0x0a2a4a);
+gridHelper.position.y = 0.05;
+scene.add(gridHelper);
+
+// ── Dock / Muelle ─────────────────────────────────────────────────────────────
+// Main dock slab
+const dock = box(180, 4, 30, MAT.dock, 0, 2, -10);
+dock.userData = { name: 'Muelle Principal', info1: 'Longitud: 180 m', info2: 'Calado aprox: 11 m' };
+
+// Dock face (sea-side edge reinforcement)
+box(180, 1, 1.5, MAT.dockEdge, 0, 4.5, 4.5);
+
+// Dock bollards
+for (let i = -80; i <= 80; i += 20) {
+  cyl(0.3, 0.4, 1.2, 8, MAT.steel, i, 4.7, 4);
+}
+
+// Dock markings / stripes
+for (let i = -80; i <= 80; i += 10) {
+  const stripe = new THREE.Mesh(
+    new THREE.BoxGeometry(0.3, 0.05, 8),
+    new THREE.MeshStandardMaterial({ color: 0xd4aa30, roughness: 0.9 })
+  );
+  stripe.position.set(i, 4.03, -5);
+  scene.add(stripe);
+}
+
+// Dock crane rails (two parallel rails)
+const railMat = MAT.rail;
+for (const rz of [-16, -4]) {
+  const railMesh = box(180, 0.3, 0.5, railMat, 0, 4.15, rz);
+}
+
+// ── Container Ship ────────────────────────────────────────────────────────────
+const SHIP_X = 0, SHIP_Y = 0, SHIP_Z = -10;
+
+// Keel / Hull bottom  (sits at waterline ~y=0, hull goes down)
+// Main hull body
+const hull = box(140, 10, 22, MAT.hullDark, SHIP_X, SHIP_Y + 5, SHIP_Z);
+hull.userData = { name: 'Buque: EVER GLORY', info1: 'Eslora: 140 m  Calado: 8.5 m', info2: 'Carga: 1,240 TEU' };
+
+// Anti-fouling (red bottom hull)
+box(140, 4, 22, MAT.hullRed, SHIP_X, SHIP_Y + 1, SHIP_Z);
+
+// Hull bow taper (simple wedge using scaled box)
+const bowGeo = new THREE.CylinderGeometry(0, 11, 18, 4, 1);
+const bow = new THREE.Mesh(bowGeo, MAT.hullDark);
+bow.position.set(SHIP_X + 70, SHIP_Y + 5, SHIP_Z);
+bow.rotation.set(Math.PI/2 * 0, 0, -Math.PI/2);
+bow.scale.set(1, 0.55, 1);
+bow.castShadow = true;
+scene.add(bow);
+
+// Stern
+const sternGeo = new THREE.CylinderGeometry(0, 11, 12, 4, 1);
+const stern = new THREE.Mesh(sternGeo, MAT.hullDark);
+stern.position.set(SHIP_X - 70, SHIP_Y + 5, SHIP_Z);
+stern.rotation.set(0, 0, Math.PI/2);
+stern.scale.set(1, 0.55, 1);
+stern.castShadow = true;
+scene.add(stern);
+
+// Main deck
+box(140, 0.8, 22, MAT.deckPlate, SHIP_X, SHIP_Y + 10.4, SHIP_Z);
+
+// Superstructure (bridge) — aft
+box(20, 14, 18, MAT.superstruc, SHIP_X - 52, SHIP_Y + 17, SHIP_Z);
+box(16, 2,  14, MAT.steel, SHIP_X - 52, SHIP_Y + 24, SHIP_Z);   // bridge wings
+// Funnel
+cyl(1.2, 2, 8, 12, MAT.steelDark, SHIP_X - 52, SHIP_Y + 29, SHIP_Z);
+cyl(2.5, 2.5, 1, 12, new THREE.MeshStandardMaterial({color:0x1a1a1a}), SHIP_X - 52, SHIP_Y + 33, SHIP_Z);
+
+// Mast
+cyl(0.2, 0.2, 12, 6, MAT.steel, SHIP_X + 60, SHIP_Y + 17, SHIP_Z);
+
+// ── Containers on ship deck ───────────────────────────────────────────────────
+const TEU_W = 6.1, TEU_H = 2.6, TEU_D = 2.4;
+const COLS   = 11; // longitudinal columns across ship
+const ROWS   = 4;  // stacks high on deck
+const BAYS   = 3;  // transverse bays
+
+function teuColor(r, c, b) {
+  return MAT.teuColors[(r + c * 3 + b * 2) % MAT.teuColors.length];
+}
+
+const teuGroup = new THREE.Group();
+scene.add(teuGroup);
+
+for (let bay = 0; bay < BAYS; bay++) {
+  const zOff = (bay - (BAYS - 1) / 2) * (TEU_D + 0.15);
+  for (let col = 0; col < COLS; col++) {
+    const xOff = (col - (COLS - 1) / 2) * (TEU_W + 0.12) + 5;
+    for (let row = 0; row < ROWS; row++) {
+      const yBase = SHIP_Y + 10.8 + row * (TEU_H + 0.08);
+      const geo = new THREE.BoxGeometry(TEU_W, TEU_H, TEU_D);
+      const mesh = new THREE.Mesh(geo, teuColor(row, col, bay));
+      mesh.position.set(SHIP_X + xOff, yBase + TEU_H / 2, SHIP_Z + zOff);
+      mesh.castShadow = mesh.receiveShadow = true;
+      mesh.userData = {
+        name: `Contenedor TEU`,
+        info1: `Bahía ${bay+1} · Columna ${col+1} · Fila ${row+1}`,
+        info2: `Estado: En cubierta`
+      };
+      teuGroup.add(mesh);
+
+      // corner castings hint
+      const cornerMat = new THREE.MeshStandardMaterial({ color: 0x8898aa, metalness: 0.8, roughness: 0.3 });
+      for (const cx of [-1, 1]) {
+        for (const cz of [-1, 1]) {
+          const corner = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.25), cornerMat);
+          corner.position.set(
+            SHIP_X + xOff + cx * (TEU_W/2 - 0.13),
+            yBase + TEU_H - 0.13,
+            SHIP_Z + zOff + cz * (TEU_D/2 - 0.13)
+          );
+          teuGroup.add(corner);
+        }
+      }
+    }
+  }
+}
+
+// ── Gantry Crane ─────────────────────────────────────────────────────────────
+const CRANE_X = -8;   // aligned over ship bay
+const CRANE_Y = 4;    // ground level = top of dock = 4
+const CRANE_Z = -10;  // centered on dock
+
+// Portal legs (4 legs, wide stance over rails)
+const LEG_H = 28, LEG_W = 0.9;
+const legPositions = [
+  [-8, -4], [-8, -16], [8, -4], [8, -16]
+]; // [x offset, z offset]
+for (const [lx, lz] of legPositions) {
+  box(LEG_W, LEG_H, LEG_W, MAT.cranePaint, CRANE_X + lx, CRANE_Y + LEG_H/2, CRANE_Z + lz);
+}
+
+// Cross beams at top of legs (portal frame)
+// Transverse beams (connecting front/back pairs)
+for (const lx of [-8, 8]) {
+  box(LEG_W, LEG_W, 12, MAT.cranePaint, CRANE_X + lx, CRANE_Y + LEG_H, CRANE_Z - 10);
+}
+// Longitudinal beams (connecting left/right pairs)
+for (const lz of [-4, -16]) {
+  box(16, LEG_W, LEG_W, MAT.cranePaint, CRANE_X, CRANE_Y + LEG_H, CRANE_Z + lz);
+}
+
+// Diagonal bracing on portal frame
+const diagMat = MAT.steelDark;
+// Front portal diagonals
+for (const sign of [-1, 1]) {
+  const diag = box(0.5, 0.5, 14, diagMat, CRANE_X + sign*8, CRANE_Y + LEG_H/2, CRANE_Z - 10);
+  diag.rotation.x = Math.PI / 4 * sign;
+}
+
+// Horizontal boom / girder extending over ship and land-side
+const BOOM_L = 80;
+const boomY  = CRANE_Y + LEG_H + 0.5;
+box(BOOM_L, 1.2, 3.5, MAT.cranePaint, CRANE_X, boomY, CRANE_Z - 10);
+
+// Boom side chords (box girder look)
+for (const dz of [-1.4, 1.4]) {
+  box(BOOM_L, 0.4, 0.4, MAT.steelDark, CRANE_X, boomY + 0.4, CRANE_Z - 10 + dz);
+  box(BOOM_L, 0.4, 0.4, MAT.steelDark, CRANE_X, boomY - 0.4, CRANE_Z - 10 + dz);
+}
+
+// Tension cables from boom tips to top of portal
+const cableLineMat = new THREE.LineBasicMaterial({ color: 0x889aaa, linewidth: 1 });
+
+// Sea-side cable
+line3([
+  new THREE.Vector3(CRANE_X + BOOM_L/2, boomY, CRANE_Z - 10),
+  new THREE.Vector3(CRANE_X + 8,        boomY + 8,  CRANE_Z - 10),
+  new THREE.Vector3(CRANE_X - 8,        boomY + 8,  CRANE_Z - 10),
+  new THREE.Vector3(CRANE_X - BOOM_L/2, boomY, CRANE_Z - 10),
+], cableLineMat);
+
+// Mast above portal
+cyl(0.3, 0.3, 8, 6, MAT.cranePaint, CRANE_X, boomY + 4, CRANE_Z - 10);
+
+// Trolley (spreader carriage) on boom — positioned over a container
+const TROLL_X = CRANE_X - 5;
+box(4, 1.2, 4, MAT.steel, TROLL_X, boomY - 1.5, CRANE_Z - 10);
+
+// Hoist cables from trolley down to spreader
+const SPREAD_Y = CRANE_Y + LEG_H - 14;
+for (const [dx, dz] of [[-1.5, -1.5], [1.5, -1.5], [-1.5, 1.5], [1.5, 1.5]]) {
+  line3([
+    new THREE.Vector3(TROLL_X + dx, boomY - 1.5, CRANE_Z - 10 + dz),
+    new THREE.Vector3(TROLL_X + dx, SPREAD_Y,    CRANE_Z - 10 + dz),
+  ], cableLineMat);
+}
+
+// Spreader bar
+box(TEU_W + 0.4, 0.5, TEU_D + 0.4, MAT.spreader, TROLL_X, SPREAD_Y - 0.3, CRANE_Z - 10);
+// Spreader twist-locks
+for (const [sx, sz] of [[-3.1, -1.3], [3.1, -1.3], [-3.1, 1.3], [3.1, 1.3]]) {
+  cyl(0.15, 0.15, 0.6, 6, MAT.steel, TROLL_X + sx, SPREAD_Y - 0.8, CRANE_Z - 10 + sz);
+}
+
+// Operator cab
+box(2.5, 2, 2, MAT.superstruc, CRANE_X - 8, boomY - 2, CRANE_Z - 4);
+
+// ── Dock side equipment ───────────────────────────────────────────────────────
+// Reach stacker (parked, simplified)
+const RS_X = 30, RS_Z = 0;
+box(6, 4, 8, new THREE.MeshStandardMaterial({color:0x2a4020, roughness:0.8}), RS_X, 6, RS_Z);
+cyl(1.2, 1.2, 1.2, 12, new THREE.MeshStandardMaterial({color:0x1a1a1a}), RS_X - 3, 5.2, RS_Z - 3);
+cyl(1.2, 1.2, 1.2, 12, new THREE.MeshStandardMaterial({color:0x1a1a1a}), RS_X + 3, 5.2, RS_Z - 3);
+cyl(1.2, 1.2, 1.2, 12, new THREE.MeshStandardMaterial({color:0x1a1a1a}), RS_X - 3, 5.2, RS_Z + 3);
+cyl(1.2, 1.2, 1.2, 12, new THREE.MeshStandardMaterial({color:0x1a1a1a}), RS_X + 3, 5.2, RS_Z + 3);
+// Boom arm
+box(12, 0.8, 0.8, new THREE.MeshStandardMaterial({color:0x3a5030}), RS_X + 4, 9, RS_Z, 0, 0, -0.3);
+
+// Ground containers (stacked on dock/patio)
+const PATIO_X = 50;
+for (let col = 0; col < 5; col++) {
+  for (let row = 0; row < 3; row++) {
+    for (let bay = 0; bay < 4; bay++) {
+      const gc = new THREE.Mesh(
+        new THREE.BoxGeometry(TEU_W, TEU_H, TEU_D),
+        teuColor(row, col, bay)
+      );
+      gc.position.set(
+        PATIO_X + col * (TEU_W + 0.15),
+        4 + TEU_H/2 + row * (TEU_H + 0.06),
+        -22 + bay * (TEU_D + 0.15)
+      );
+      gc.castShadow = gc.receiveShadow = true;
+      gc.userData = { name: 'Contenedor TEU', info1: 'Patio de almacenamiento', info2: `Stack C${col+1} R${row+1}` };
+      scene.add(gc);
+    }
+  }
+}
+
+// ── Lighting ──────────────────────────────────────────────────────────────────
+// Ambient
+scene.add(new THREE.AmbientLight(0x1a2535, 1.2));
+
+// Main directional (sun angle)
+const dirLight = new THREE.DirectionalLight(0xdde8f0, 1.8);
+dirLight.position.set(60, 80, 40);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.set(2048, 2048);
+dirLight.shadow.camera.near = 1;
+dirLight.shadow.camera.far  = 300;
+dirLight.shadow.camera.left = dirLight.shadow.camera.bottom = -120;
+dirLight.shadow.camera.right = dirLight.shadow.camera.top  =  120;
+scene.add(dirLight);
+
+// Fill light (ocean reflection)
+const fillLight = new THREE.DirectionalLight(0x0a2a4a, 0.6);
+fillLight.position.set(-40, 20, -40);
+scene.add(fillLight);
+
+// Crane work lights
+for (const lx of [-8, 8]) {
+  const wl = new THREE.PointLight(0xffe8c0, 1.5, 30, 2);
+  wl.position.set(CRANE_X + lx, boomY + 2, CRANE_Z - 10);
+  scene.add(wl);
+}
+
+// Dock ambient
+const dockLight = new THREE.PointLight(0xb0c8e0, 0.8, 80, 2);
+dockLight.position.set(0, 20, -10);
+scene.add(dockLight);
+
+// ── Raycaster for tooltips ────────────────────────────────────────────────────
+const raycaster = new THREE.Raycaster();
+const mouse     = new THREE.Vector2();
+
+renderer.domElement.addEventListener('mousemove', (e) => {
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x =  ((e.clientX - rect.left)  / rect.width)  * 2 - 1;
+  mouse.y = -((e.clientY - rect.top)   / rect.height) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(scene.children, true);
+
+  const hit = hits.find(h => h.object.userData && h.object.userData.name);
+  if (hit) {
+    const d = hit.object.userData;
+    document.getElementById('tt-title').textContent = d.name || '';
+    document.getElementById('tt-line1').textContent = d.info1 || '';
+    document.getElementById('tt-line2').textContent = d.info2 || '';
+    tooltip.style.display = 'block';
+    tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
+    tooltip.style.top  = (e.clientY - rect.top  + 12) + 'px';
+  } else {
+    tooltip.style.display = 'none';
+  }
+});
+renderer.domElement.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+
+// ── Phase buttons (static visual only) ───────────────────────────────────────
+const phaseBtns = document.querySelectorAll('.phase-btn:not(.pause)');
+phaseBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    phaseBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ── Render loop ───────────────────────────────────────────────────────────────
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
