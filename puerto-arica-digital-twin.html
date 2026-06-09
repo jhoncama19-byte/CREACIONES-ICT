@@ -28,7 +28,6 @@
       --text-muted:   #5a6a7e;
       --text-dim:     #3a4a5e;
       --warn:         #c8960a;
-      --success:      #1a7a4a;
       --danger:       #8a2020;
     }
 
@@ -52,17 +51,13 @@
     /* ── Top Bar ── */
     #topbar {
       grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       padding: 0 16px;
       background: var(--bg-panel);
       border-bottom: 1px solid var(--border);
       z-index: 10;
     }
-    #topbar .brand {
-      display: flex; align-items: center; gap: 10px;
-    }
+    #topbar .brand { display: flex; align-items: center; gap: 10px; }
     #topbar .brand .dot {
       width: 8px; height: 8px; border-radius: 50%;
       background: var(--accent-glow);
@@ -73,42 +68,30 @@
     #topbar .brand h1 {
       font-size: 13px; font-weight: 600;
       letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--text-primary);
     }
     #topbar .brand span {
-      font-size: 11px; color: var(--text-muted);
-      letter-spacing: 0.06em;
+      font-size: 11px; color: var(--text-muted); letter-spacing: 0.06em;
     }
-    #topbar .status-row {
-      display: flex; gap: 20px; align-items: center;
-    }
+    #topbar .status-row { display: flex; gap: 20px; align-items: center; }
     .status-chip {
       display: flex; align-items: center; gap: 5px;
-      font-size: 10px; letter-spacing: 0.05em;
-      color: var(--text-muted);
+      font-size: 10px; letter-spacing: 0.05em; color: var(--text-muted);
     }
-    .status-chip .led {
-      width: 6px; height: 6px; border-radius: 50%;
-    }
+    .status-chip .led { width: 6px; height: 6px; border-radius: 50%; }
     .led-green  { background: #22cc66; box-shadow: 0 0 5px #22cc66; }
     .led-yellow { background: #ccaa22; box-shadow: 0 0 5px #ccaa22; }
     .led-red    { background: #cc2222; box-shadow: 0 0 5px #cc2222; }
 
-    /* Chip de ciclo completo — oculto hasta p4_done */
-    #chip-cycle {
-      display: none;
-      animation: cycle-flash 0.6s ease 3;
+    #chip-cycle { display: none; }
+    #chip-cycle.show {
+      display: flex;
+      animation: cycle-flash 0.6s ease 4;
     }
-    @keyframes cycle-flash {
-      0%,100%{ opacity:1 } 50%{ opacity:0.3 }
-    }
-    #chip-cycle.show { display: flex; }
+    @keyframes cycle-flash { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
     /* ── Canvas ── */
     #canvas-wrap {
-      position: relative;
-      overflow: hidden;
-      background: var(--bg-deep);
+      position: relative; overflow: hidden; background: var(--bg-deep);
     }
     #canvas-wrap canvas { display: block; width: 100% !important; height: 100% !important; }
 
@@ -122,8 +105,7 @@
       background: rgba(10,13,18,0.75);
       border: 1px solid var(--border-hi);
       border-left: 2px solid var(--accent);
-      font-size: 10px; color: var(--text-muted);
-      letter-spacing: 0.06em;
+      font-size: 10px; color: var(--text-muted); letter-spacing: 0.06em;
       backdrop-filter: blur(4px);
     }
     .overlay-badge strong { color: var(--accent-glow); }
@@ -133,9 +115,7 @@
       background: var(--bg-panel);
       border-left: 1px solid var(--border);
       overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
+      display: flex; flex-direction: column; gap: 0;
     }
     #side-panel::-webkit-scrollbar { width: 4px; }
     #side-panel::-webkit-scrollbar-track { background: var(--bg-deep); }
@@ -145,41 +125,30 @@
     .panel-section-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 14px 8px;
-      cursor: pointer; user-select: none;
     }
     .panel-section-header .label {
       font-size: 10px; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--text-muted);
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted);
     }
     .panel-section-header .tag {
       font-size: 9px; padding: 2px 6px;
-      background: var(--accent-dim);
-      color: var(--accent-glow);
-      border-radius: 2px;
+      background: var(--accent-dim); color: var(--accent-glow); border-radius: 2px;
     }
     .panel-section-body { padding: 0 14px 12px; }
 
     .metric-row {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 6px 0;
-      border-bottom: 1px solid var(--border);
+      padding: 6px 0; border-bottom: 1px solid var(--border);
     }
     .metric-row:last-child { border-bottom: none; }
     .metric-row .mkey { font-size: 10px; color: var(--text-muted); letter-spacing: 0.04em; }
     .metric-row .mval { font-size: 11px; font-weight: 600; color: var(--text-primary); text-align: right; }
-    .metric-row .mval.accent { color: var(--accent-glow); }
-    .metric-row .mval.warn   { color: var(--warn); }
+    .metric-row .mval.accent  { color: var(--accent-glow); }
+    .metric-row .mval.warn    { color: var(--warn); }
     .metric-row .mval.success { color: #22cc66; }
 
-    /* Processed counter — highlighted row */
-    #row-processed {
-      transition: background 0.4s;
-    }
-    #row-processed.updated {
-      background: rgba(34,204,102,0.08);
-      border-radius: 3px;
-    }
+    #row-processed { border-radius: 3px; transition: background 0.4s; }
+    #row-processed.updated { background: rgba(34,204,102,0.10); }
 
     .mini-bar-wrap { margin-top: 4px; }
     .mini-bar-label {
@@ -194,18 +163,14 @@
     }
 
     .kb-item {
-      display: flex; gap: 8px;
-      padding: 7px 0;
-      border-bottom: 1px solid var(--border);
-      align-items: flex-start;
+      display: flex; gap: 8px; padding: 7px 0;
+      border-bottom: 1px solid var(--border); align-items: flex-start;
     }
     .kb-item:last-child { border-bottom: none; }
     .kb-icon {
       width: 22px; height: 22px; min-width: 22px;
-      background: var(--bg-card); border: 1px solid var(--border-hi);
-      border-radius: 3px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px;
+      background: var(--bg-card); border: 1px solid var(--border-hi); border-radius: 3px;
+      display: flex; align-items: center; justify-content: center; font-size: 10px;
     }
     .kb-text { font-size: 10px; line-height: 1.5; color: var(--text-muted); }
     .kb-text strong { color: var(--text-primary); display: block; font-size: 10px; }
@@ -218,13 +183,12 @@
     .berth-id { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; color: var(--text-dim); min-width: 30px; }
     .berth-bar {
       flex: 1; height: 14px; background: var(--bg-card);
-      border: 1px solid var(--border); border-radius: 2px;
-      overflow: hidden; position: relative;
+      border: 1px solid var(--border); border-radius: 2px; overflow: hidden;
     }
     .berth-fill {
-      height: 100%; transition: width 0.5s;
-      display: flex; align-items: center;
+      height: 100%; display: flex; align-items: center;
       padding-left: 4px; font-size: 8px; font-weight: 600; white-space: nowrap;
+      transition: width 0.5s;
     }
     .berth-fill.active { background: var(--accent-dim); color: var(--accent-glow); }
     .berth-fill.idle   { background: #1a2010; color: #446633; }
@@ -239,38 +203,58 @@
       border-top: 1px solid var(--border);
       padding: 0 16px; z-index: 10;
     }
+
     .phase-btn {
       display: flex; align-items: center; gap: 6px;
       padding: 7px 14px;
       background: var(--bg-card);
-      border: 1px solid var(--border-hi);
-      border-radius: 3px;
+      border: 1px solid var(--border-hi); border-radius: 3px;
       color: var(--text-muted);
       font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
       cursor: pointer; transition: all 0.15s;
+      user-select: none;
     }
     .phase-btn:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--text-primary); }
     .phase-btn.active {
       background: var(--accent-dim); border-color: var(--accent-glow);
       color: var(--accent-glow); box-shadow: 0 0 10px rgba(34,170,255,0.12);
     }
-    .phase-btn.pause { border-color: var(--danger); color: #cc4444; }
-    .phase-btn.pause:hover { background: #200808; }
+    /* Locked state: phase buttons blocked during animation */
+    .phase-btn.locked {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .phase-btn.pause  { border-color: var(--danger); color: #cc4444; }
+    .phase-btn.pause:hover { background: #1a0808; }
+    .phase-btn.reset  { border-color: #2a5530; color: #44aa66; }
+    .phase-btn.reset:hover { background: #0a1a10; border-color: #44aa66; }
+
     .phase-num {
       font-size: 9px; font-weight: 700; padding: 1px 4px; border-radius: 2px;
       background: rgba(255,255,255,0.06); letter-spacing: 0.08em;
     }
     .separator { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
 
+    /* Animating indicator in bottom bar */
+    #anim-indicator {
+      font-size: 9px; color: var(--text-dim); letter-spacing: 0.08em;
+      display: none; align-items: center; gap: 5px;
+    }
+    #anim-indicator.show { display: flex; }
+    #anim-indicator .blink {
+      width: 5px; height: 5px; border-radius: 50%; background: var(--accent-glow);
+      animation: pulse 0.8s ease-in-out infinite;
+    }
+
+    /* ── Tooltip ── */
     #tooltip {
       position: absolute; pointer-events: none;
       background: rgba(10,13,18,0.9);
-      border: 1px solid var(--border-hi);
-      border-left: 2px solid var(--accent-glow);
-      padding: 6px 10px; font-size: 10px;
-      color: var(--text-primary); border-radius: 2px;
-      backdrop-filter: blur(6px); display: none;
-      white-space: nowrap; z-index: 100;
+      border: 1px solid var(--border-hi); border-left: 2px solid var(--accent-glow);
+      padding: 6px 10px; font-size: 10px; color: var(--text-primary);
+      border-radius: 2px; backdrop-filter: blur(6px);
+      display: none; white-space: nowrap; z-index: 100;
     }
     #tooltip .tt-title { font-weight: 700; color: var(--accent-glow); margin-bottom: 2px; }
     #tooltip .tt-line  { color: var(--text-muted); }
@@ -295,7 +279,7 @@
       <div class="status-chip" id="chip-cycle">
         <div class="led led-green"></div>CICLO COMPLETO
       </div>
-      <div class="status-chip"><div class="led led-red"></div>FASE: —</div>
+      <div class="status-chip"><div class="led led-red"></div><span id="chip-phase-text">FASE: —</span></div>
     </div>
   </header>
 
@@ -317,7 +301,6 @@
   <!-- ── Side Panel ── -->
   <aside id="side-panel">
 
-    <!-- Métricas Portuarias -->
     <div class="panel-section">
       <div class="panel-section-header">
         <span class="label">Métricas Portuarias</span>
@@ -329,10 +312,11 @@
           <span class="mval accent">220,000 TEU/año</span>
         </div>
         <div class="mini-bar-wrap">
-          <div class="mini-bar-label"><span>Utilización actual</span><span id="util-pct">64%</span></div>
+          <div class="mini-bar-label">
+            <span>Utilización actual</span><span id="util-pct">64%</span>
+          </div>
           <div class="mini-bar"><div class="mini-bar-fill" id="util-bar" style="width:64%"></div></div>
         </div>
-
         <div class="metric-row" style="margin-top:8px">
           <span class="mkey">Eslora máx. admisible</span>
           <span class="mval">280 m</span>
@@ -361,7 +345,6 @@
           <span class="mkey">Tiempo en muelle (ETA)</span>
           <span class="mval">18 h</span>
         </div>
-        <!-- ── SCADA: contador de contenedores procesados ── -->
         <div class="metric-row" id="row-processed">
           <span class="mkey">Contenedores Procesados</span>
           <span class="mval" id="val-processed">0</span>
@@ -373,7 +356,6 @@
       </div>
     </div>
 
-    <!-- Estado de Sitios -->
     <div class="panel-section">
       <div class="panel-section-header">
         <span class="label">Estado de Sitios</span>
@@ -401,7 +383,6 @@
       </div>
     </div>
 
-    <!-- Base de Conocimiento -->
     <div class="panel-section">
       <div class="panel-section-header">
         <span class="label">Base de Conocimiento</span>
@@ -463,8 +444,10 @@
   <!-- ── Bottom Phase Bar ── -->
   <footer id="bottom-bar">
     <button class="phase-btn pause" id="btn-pause">⏸ PAUSAR</button>
+    <button class="phase-btn reset" id="btn-reset">↺ REINICIAR</button>
     <div class="separator"></div>
-    <button class="phase-btn active" id="btn-p1">
+    <div id="anim-indicator"><div class="blink"></div>ANIMANDO</div>
+    <button class="phase-btn" id="btn-p1">
       <span class="phase-num">01</span> ARRIBO
     </button>
     <button class="phase-btn" id="btn-p2">
@@ -484,10 +467,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-// ── Scene bootstrap ──────────────────────────────────────────────────────────
-const canvas  = document.getElementById('three-canvas');
-const wrap    = document.getElementById('canvas-wrap');
-const tooltip = document.getElementById('tooltip');
+// ── Renderer & Scene ─────────────────────────────────────────────────────────
+const canvas = document.getElementById('three-canvas');
+const wrap   = document.getElementById('canvas-wrap');
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -511,6 +493,10 @@ controls.minPolarAngle  = 0.1;
 controls.maxPolarAngle  = Math.PI / 2.1;
 controls.minDistance    = 20;
 controls.maxDistance    = 200;
+
+// Camera home (for full reset)
+const CAM_HOME_POS    = new THREE.Vector3(90, 55, 90);
+const CAM_HOME_TARGET = new THREE.Vector3(0, 4, 0);
 
 function resize() {
   const w = wrap.clientWidth, h = wrap.clientHeight;
@@ -549,65 +535,62 @@ const MAT = {
   tractorWheel: new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9, metalness: 0.1 }),
   tractorRim:   new THREE.MeshStandardMaterial({ color: 0x606878, roughness: 0.3, metalness: 0.9 }),
   tractorGlass: new THREE.MeshStandardMaterial({ color: 0x4488aa, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.7 }),
-  // Patio hoist guide cable
-  hoistGuide:   new THREE.LineBasicMaterial({ color: 0x889aaa }),
 };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Build helpers ────────────────────────────────────────────────────────────
 function box(w, h, d, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-  m.position.set(x, y, z); m.rotation.set(rx, ry, rz);
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
+  m.position.set(x,y,z); m.rotation.set(rx,ry,rz);
   m.castShadow = m.receiveShadow = true; scene.add(m); return m;
 }
 function cyl(rt, rb, h, seg, mat, x=0, y=0, z=0) {
-  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
-  m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; scene.add(m); return m;
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg), mat);
+  m.position.set(x,y,z); m.castShadow = m.receiveShadow = true; scene.add(m); return m;
 }
 function line3(pts, mat) {
   const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat);
   scene.add(l); return l;
 }
-function boxG(grp, w, h, d, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-  m.position.set(x, y, z); m.rotation.set(rx, ry, rz);
-  m.castShadow = m.receiveShadow = true; grp.add(m); return m;
+function boxG(g, w, h, d, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
+  m.position.set(x,y,z); m.rotation.set(rx,ry,rz);
+  m.castShadow = m.receiveShadow = true; g.add(m); return m;
 }
-function cylG(grp, rt, rb, h, seg, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
-  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
-  m.position.set(x, y, z); m.rotation.set(rx, ry, rz);
-  m.castShadow = m.receiveShadow = true; grp.add(m); return m;
+function cylG(g, rt, rb, h, seg, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg), mat);
+  m.position.set(x,y,z); m.rotation.set(rx,ry,rz);
+  m.castShadow = m.receiveShadow = true; g.add(m); return m;
 }
 
-// ── Ocean ────────────────────────────────────────────────────────────────────
-const ocean = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), MAT.ocean);
-ocean.rotation.x = -Math.PI / 2; ocean.position.y = 0; ocean.receiveShadow = true;
-ocean.userData = { name: 'Océano Pacífico', info1: 'Temperatura: 18°C', info2: 'Oleaje: 0.5 m' };
+// ── Ocean & Grid ─────────────────────────────────────────────────────────────
+const ocean = new THREE.Mesh(new THREE.PlaneGeometry(500,500), MAT.ocean);
+ocean.rotation.x = -Math.PI/2; ocean.receiveShadow = true;
+ocean.userData = { name:'Océano Pacífico', info1:'Temperatura: 18°C', info2:'Oleaje: 0.5 m' };
 scene.add(ocean);
-
-const gridHelper = new THREE.GridHelper(200, 40, 0x0a2a4a, 0x0a2a4a);
-gridHelper.position.y = 0.05; scene.add(gridHelper);
+const grid = new THREE.GridHelper(200, 40, 0x0a2a4a, 0x0a2a4a);
+grid.position.y = 0.05; scene.add(grid);
 
 // ── Dock ─────────────────────────────────────────────────────────────────────
-const dock = box(180, 4, 30, MAT.dock, 0, 2, -10);
-dock.userData = { name: 'Muelle Principal', info1: 'Longitud: 180 m', info2: 'Calado aprox: 11 m' };
-box(180, 1, 1.5, MAT.dockEdge, 0, 4.5, 4.5);
-for (let i = -80; i <= 80; i += 20) cyl(0.3, 0.4, 1.2, 8, MAT.steel, i, 4.7, 4);
-for (let i = -80; i <= 80; i += 10) {
-  const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.05, 8),
-    new THREE.MeshStandardMaterial({ color: 0xd4aa30, roughness: 0.9 }));
-  stripe.position.set(i, 4.03, -5); scene.add(stripe);
+const dock = box(180,4,30,MAT.dock, 0,2,-10);
+dock.userData = { name:'Muelle Principal', info1:'Longitud: 180 m', info2:'Calado aprox: 11 m' };
+box(180,1,1.5,MAT.dockEdge, 0,4.5,4.5);
+for (let i=-80; i<=80; i+=20) cyl(0.3,0.4,1.2,8,MAT.steel, i,4.7,4);
+for (let i=-80; i<=80; i+=10) {
+  const s = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.05,8),
+    new THREE.MeshStandardMaterial({color:0xd4aa30,roughness:0.9}));
+  s.position.set(i,4.03,-5); scene.add(s);
 }
-for (const rz of [-16, -4]) box(180, 0.3, 0.5, MAT.rail, 0, 4.15, rz);
+for (const rz of [-16,-4]) box(180,0.3,0.5,MAT.rail, 0,4.15,rz);
 
 // ── Ship ─────────────────────────────────────────────────────────────────────
 const SHIP_Y = 0;
 const shipGroup = new THREE.Group();
-shipGroup.position.set(200, 0, -10);
+shipGroup.position.set(200,0,-10);
 scene.add(shipGroup);
 
-const hull = boxG(shipGroup, 140, 10, 22, MAT.hullDark, 0, SHIP_Y+5, 0);
-hull.userData = { name: 'Buque: EVER GLORY', info1: 'Eslora: 140 m  Calado: 8.5 m', info2: 'Carga: 1,240 TEU' };
-boxG(shipGroup, 140, 4, 22, MAT.hullRed, 0, SHIP_Y+1, 0);
+const hull = boxG(shipGroup,140,10,22,MAT.hullDark, 0,SHIP_Y+5,0);
+hull.userData = { name:'Buque: EVER GLORY', info1:'Eslora: 140 m  Calado: 8.5 m', info2:'Carga: 1,240 TEU' };
+boxG(shipGroup,140,4,22,MAT.hullRed, 0,SHIP_Y+1,0);
 
 const bowGeo = new THREE.CylinderGeometry(0,11,18,4,1);
 const bow = new THREE.Mesh(bowGeo, MAT.hullDark);
@@ -619,32 +602,36 @@ const stern = new THREE.Mesh(sternGeo, MAT.hullDark);
 stern.position.set(-70,SHIP_Y+5,0); stern.rotation.set(0,0,Math.PI/2); stern.scale.set(1,0.55,1);
 stern.castShadow = true; shipGroup.add(stern);
 
-boxG(shipGroup,140,0.8,22,MAT.deckPlate,0,SHIP_Y+10.4,0);
-boxG(shipGroup,20,14,18,MAT.superstruc,-52,SHIP_Y+17,0);
-boxG(shipGroup,16,2,14,MAT.steel,-52,SHIP_Y+24,0);
+boxG(shipGroup,140,0.8,22,MAT.deckPlate,  0,SHIP_Y+10.4,0);
+boxG(shipGroup,20,14,18,MAT.superstruc, -52,SHIP_Y+17,0);
+boxG(shipGroup,16,2,14,MAT.steel,       -52,SHIP_Y+24,0);
 cylG(shipGroup,1.2,2,8,12,MAT.steelDark,-52,SHIP_Y+29,0);
 cylG(shipGroup,2.5,2.5,1,12,new THREE.MeshStandardMaterial({color:0x1a1a1a}),-52,SHIP_Y+33,0);
-cylG(shipGroup,0.2,0.2,12,6,MAT.steel,60,SHIP_Y+17,0);
+cylG(shipGroup,0.2,0.2,12,6,MAT.steel,   60,SHIP_Y+17,0);
 
-// ── Deck containers ──────────────────────────────────────────────────────────
-const TEU_W = 6.1, TEU_H = 2.6, TEU_D = 2.4;
-const COLS = 11, ROWS = 4, BAYS = 3;
-function teuColor(r,c,b) { return MAT.teuColors[(r+c*3+b*2)%MAT.teuColors.length]; }
+// ── Deck containers ───────────────────────────────────────────────────────────
+const TEU_W=6.1, TEU_H=2.6, TEU_D=2.4;
+const COLS=11, ROWS=4, BAYS=3;
+function teuColor(r,c,b){ return MAT.teuColors[(r+c*3+b*2)%MAT.teuColors.length]; }
 
 const teuGroup = new THREE.Group();
 shipGroup.add(teuGroup);
 let targetContainerMesh = null;
+// Fixed local position of target container in teuGroup (col=3,row=3,bay=1)
+// xOff=(3-5)*6.22+5=-7.44  yBase=10.8+3*2.68=18.84  y=18.84+1.3=20.14  zOff=0
+const CONTAINER_LOCAL_POS = new THREE.Vector3(-7.44, 20.14, 0);
 
 for (let bay=0; bay<BAYS; bay++) {
-  const zOff = (bay-(BAYS-1)/2)*(TEU_D+0.15);
+  const zOff=(bay-(BAYS-1)/2)*(TEU_D+0.15);
   for (let col=0; col<COLS; col++) {
-    const xOff = (col-(COLS-1)/2)*(TEU_W+0.12)+5;
+    const xOff=(col-(COLS-1)/2)*(TEU_W+0.12)+5;
     for (let row=0; row<ROWS; row++) {
-      const yBase = SHIP_Y+10.8+row*(TEU_H+0.08);
+      const yBase=SHIP_Y+10.8+row*(TEU_H+0.08);
       const mesh = new THREE.Mesh(new THREE.BoxGeometry(TEU_W,TEU_H,TEU_D), teuColor(row,col,bay));
       mesh.position.set(xOff, yBase+TEU_H/2, zOff);
       mesh.castShadow = mesh.receiveShadow = true;
-      mesh.userData = { name:'Contenedor TEU', info1:`Bahía ${bay+1} · Col ${col+1} · Fila ${row+1}`, info2:'En cubierta' };
+      mesh.userData = { name:'Contenedor TEU',
+        info1:`Bahía ${bay+1} · Col ${col+1} · Fila ${row+1}`, info2:'En cubierta' };
       teuGroup.add(mesh);
       if (col===3 && row===3 && bay===1) targetContainerMesh = mesh;
       const cm = new THREE.MeshStandardMaterial({color:0x8898aa,metalness:0.8,roughness:0.3});
@@ -657,35 +644,37 @@ for (let bay=0; bay<BAYS; bay++) {
   }
 }
 
-// ── Gantry Crane ─────────────────────────────────────────────────────────────
+// ── Gantry Crane (static) ─────────────────────────────────────────────────────
 const CRANE_X=-8, CRANE_Y=4, CRANE_Z=-10;
 const LEG_H=28, LEG_W=0.9;
 for (const [lx,lz] of [[-8,-4],[-8,-16],[8,-4],[8,-16]])
-  box(LEG_W,LEG_H,LEG_W,MAT.cranePaint,CRANE_X+lx,CRANE_Y+LEG_H/2,CRANE_Z+lz);
-for (const lx of [-8,8]) box(LEG_W,LEG_W,12,MAT.cranePaint,CRANE_X+lx,CRANE_Y+LEG_H,CRANE_Z-10);
-for (const lz of [-4,-16]) box(16,LEG_W,LEG_W,MAT.cranePaint,CRANE_X,CRANE_Y+LEG_H,CRANE_Z+lz);
+  box(LEG_W,LEG_H,LEG_W,MAT.cranePaint, CRANE_X+lx,CRANE_Y+LEG_H/2,CRANE_Z+lz);
+for (const lx of [-8,8])
+  box(LEG_W,LEG_W,12,MAT.cranePaint, CRANE_X+lx,CRANE_Y+LEG_H,CRANE_Z-10);
+for (const lz of [-4,-16])
+  box(16,LEG_W,LEG_W,MAT.cranePaint, CRANE_X,CRANE_Y+LEG_H,CRANE_Z+lz);
 for (const sign of [-1,1]) {
-  const diag = box(0.5,0.5,14,MAT.steelDark,CRANE_X+sign*8,CRANE_Y+LEG_H/2,CRANE_Z-10);
-  diag.rotation.x = Math.PI/4*sign;
+  const d = box(0.5,0.5,14,MAT.steelDark, CRANE_X+sign*8,CRANE_Y+LEG_H/2,CRANE_Z-10);
+  d.rotation.x = Math.PI/4*sign;
 }
 const BOOM_L=80, boomY=CRANE_Y+LEG_H+0.5;
-box(BOOM_L,1.2,3.5,MAT.cranePaint,CRANE_X,boomY,CRANE_Z-10);
+box(BOOM_L,1.2,3.5,MAT.cranePaint, CRANE_X,boomY,CRANE_Z-10);
 for (const dz of [-1.4,1.4]) {
-  box(BOOM_L,0.4,0.4,MAT.steelDark,CRANE_X,boomY+0.4,CRANE_Z-10+dz);
-  box(BOOM_L,0.4,0.4,MAT.steelDark,CRANE_X,boomY-0.4,CRANE_Z-10+dz);
+  box(BOOM_L,0.4,0.4,MAT.steelDark, CRANE_X,boomY+0.4,CRANE_Z-10+dz);
+  box(BOOM_L,0.4,0.4,MAT.steelDark, CRANE_X,boomY-0.4,CRANE_Z-10+dz);
 }
-const cableLineMat = new THREE.LineBasicMaterial({color:0x889aaa});
 line3([
   new THREE.Vector3(CRANE_X+BOOM_L/2,boomY,CRANE_Z-10),
   new THREE.Vector3(CRANE_X+8,boomY+8,CRANE_Z-10),
   new THREE.Vector3(CRANE_X-8,boomY+8,CRANE_Z-10),
   new THREE.Vector3(CRANE_X-BOOM_L/2,boomY,CRANE_Z-10),
-], cableLineMat);
-cyl(0.3,0.3,8,6,MAT.cranePaint,CRANE_X,boomY+4,CRANE_Z-10);
-box(2.5,2,2,MAT.superstruc,CRANE_X-8,boomY-2,CRANE_Z-4);
+], new THREE.LineBasicMaterial({color:0x889aaa}));
+cyl(0.3,0.3,8,6,MAT.cranePaint, CRANE_X,boomY+4,CRANE_Z-10);
+box(2.5,2,2,MAT.superstruc, CRANE_X-8,boomY-2,CRANE_Z-4);
 
 // ── Dynamic crane parts ───────────────────────────────────────────────────────
 const CRANE_Z_SPREADER=-10, TROLL_INIT_X=-13, SPREAD_HIGH_Y=30.5;
+
 const trolleyMesh = new THREE.Mesh(new THREE.BoxGeometry(4,1.2,4),MAT.steel);
 trolleyMesh.position.set(TROLL_INIT_X,boomY-1.5,CRANE_Z_SPREADER);
 trolleyMesh.castShadow = trolleyMesh.receiveShadow = true; scene.add(trolleyMesh);
@@ -694,34 +683,34 @@ const spreaderMesh = new THREE.Mesh(new THREE.BoxGeometry(TEU_W+0.4,0.5,TEU_D+0.
 spreaderMesh.position.set(TROLL_INIT_X,SPREAD_HIGH_Y,CRANE_Z_SPREADER);
 spreaderMesh.castShadow = spreaderMesh.receiveShadow = true; scene.add(spreaderMesh);
 
-const spreaderLocks=[];
-const lockOffsets=[[-3.1,-1.3],[3.1,-1.3],[-3.1,1.3],[3.1,1.3]];
+const spreaderLocks = [];
+const lockOffsets = [[-3.1,-1.3],[3.1,-1.3],[-3.1,1.3],[3.1,1.3]];
 for (const [sx,sz] of lockOffsets) {
   const lock = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,0.6,6),MAT.steel);
   lock.position.set(TROLL_INIT_X+sx,SPREAD_HIGH_Y-0.55,CRANE_Z_SPREADER+sz);
   lock.castShadow=true; scene.add(lock); spreaderLocks.push(lock);
 }
 
-const hoistCableGeos=[], hoistCableLines_dyn=[];
-const dynCableLineMat = new THREE.LineBasicMaterial({color:0x888898});
-for (let i=0;i<4;i++) {
+// Hoist cable lines (dynamic)
+const hoistCableGeos = [], dynCableLineMat = new THREE.LineBasicMaterial({color:0x888898});
+for (let i=0;i<4;i++){
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(6),3));
-  const l = new THREE.Line(geo,dynCableLineMat); scene.add(l);
-  hoistCableGeos.push(geo); hoistCableLines_dyn.push(l);
+  scene.add(new THREE.Line(geo,dynCableLineMat));
+  hoistCableGeos.push(geo);
 }
-function updateHoistCables() {
+function updateHoistCables(){
   const corners=[[-1.5,-1.5],[1.5,-1.5],[-1.5,1.5],[1.5,1.5]];
-  corners.forEach(([dx,dz],i) => {
-    const arr=hoistCableGeos[i].attributes.position.array;
-    arr[0]=trolleyMesh.position.x+dx; arr[1]=trolleyMesh.position.y-0.6; arr[2]=trolleyMesh.position.z+dz;
-    arr[3]=spreaderMesh.position.x+dx; arr[4]=spreaderMesh.position.y+0.25; arr[5]=spreaderMesh.position.z+dz;
+  corners.forEach(([dx,dz],i)=>{
+    const a=hoistCableGeos[i].attributes.position.array;
+    a[0]=trolleyMesh.position.x+dx; a[1]=trolleyMesh.position.y-0.6; a[2]=trolleyMesh.position.z+dz;
+    a[3]=spreaderMesh.position.x+dx; a[4]=spreaderMesh.position.y+0.25; a[5]=spreaderMesh.position.z+dz;
     hoistCableGeos[i].attributes.position.needsUpdate=true;
   });
 }
-function moveTrolleyAndSpreader(tx,sy) {
+function moveTrolleyAndSpreader(tx,sy){
   trolleyMesh.position.x=tx; spreaderMesh.position.x=tx; spreaderMesh.position.y=sy;
-  spreaderLocks.forEach((lock,i) => {
+  spreaderLocks.forEach((lock,i)=>{
     lock.position.x=tx+lockOffsets[i][0]; lock.position.y=sy-0.55;
     lock.position.z=CRANE_Z_SPREADER+lockOffsets[i][1];
   });
@@ -729,147 +718,145 @@ function moveTrolleyAndSpreader(tx,sy) {
 }
 updateHoistCables();
 
-// ── Dock side equipment ───────────────────────────────────────────────────────
-const RS_X=30, RS_Z=0;
-box(6,4,8,new THREE.MeshStandardMaterial({color:0x2a4020,roughness:0.8}),RS_X,6,RS_Z);
+// ── Dock equipment ────────────────────────────────────────────────────────────
+const RS_X=30,RS_Z=0;
+box(6,4,8,new THREE.MeshStandardMaterial({color:0x2a4020,roughness:0.8}), RS_X,6,RS_Z);
 for (const [cx,cz] of [[-3,-3],[3,-3],[-3,3],[3,3]])
-  cyl(1.2,1.2,1.2,12,new THREE.MeshStandardMaterial({color:0x1a1a1a}),RS_X+cx,5.2,RS_Z+cz);
-box(12,0.8,0.8,new THREE.MeshStandardMaterial({color:0x3a5030}),RS_X+4,9,RS_Z,0,0,-0.3);
+  cyl(1.2,1.2,1.2,12,new THREE.MeshStandardMaterial({color:0x1a1a1a}), RS_X+cx,5.2,RS_Z+cz);
+box(12,0.8,0.8,new THREE.MeshStandardMaterial({color:0x3a5030}), RS_X+4,9,RS_Z, 0,0,-0.3);
 
 // ── Patio de almacenamiento ───────────────────────────────────────────────────
-const PATIO_X = 50;
-// Individual positions: X = PATIO_X + col*(TEU_W+0.15)
-//                       Y = 4 + TEU_H/2 + row*(TEU_H+0.06)
-//                       Z = -22 + bay*(TEU_D+0.15)
-for (let col=0; col<5; col++) {
-  for (let row=0; row<3; row++) {
-    for (let bay=0; bay<4; bay++) {
-      const gc = new THREE.Mesh(new THREE.BoxGeometry(TEU_W,TEU_H,TEU_D), teuColor(row,col,bay));
-      gc.position.set(
-        PATIO_X + col*(TEU_W+0.15),
-        4 + TEU_H/2 + row*(TEU_H+0.06),
-        -22 + bay*(TEU_D+0.15)
-      );
-      gc.castShadow = gc.receiveShadow = true;
-      gc.userData = { name:'Contenedor TEU', info1:'Patio de almacenamiento', info2:`Stack C${col+1} R${row+1}` };
-      scene.add(gc);
-    }
-  }
+const PATIO_X=50;
+for (let col=0;col<5;col++) for (let row=0;row<3;row++) for (let bay=0;bay<4;bay++){
+  const gc = new THREE.Mesh(new THREE.BoxGeometry(TEU_W,TEU_H,TEU_D), teuColor(row,col,bay));
+  gc.position.set(
+    PATIO_X+col*(TEU_W+0.15),
+    4+TEU_H/2+row*(TEU_H+0.06),
+    -22+bay*(TEU_D+0.15)
+  );
+  gc.castShadow=gc.receiveShadow=true;
+  gc.userData={name:'Contenedor TEU',info1:'Patio de almacenamiento',info2:`Stack C${col+1} R${row+1}`};
+  scene.add(gc);
 }
 
-// ── Phase 04 stacking target ──────────────────────────────────────────────────
-// Slot: column=0, row=3 (on top of existing 3 rows), bay=1
-// This slot is deliberately empty in the initial patio fill (rows 0-2 only)
-const STACK_COL = 0, STACK_BAY = 1;
-const STACK_TARGET_X = PATIO_X + STACK_COL * (TEU_W + 0.15);              // 50.0
-const STACK_TARGET_Z = -22 + STACK_BAY * (TEU_D + 0.15);                  // -19.45
-// Row 2 top Y = 4 + TEU_H/2 + 2*(TEU_H+0.06) + TEU_H/2 = 4 + TEU_H*3 + 0.12 = 11.92
-// Row 3 center Y = 11.92 + TEU_H/2 = 13.22 → use formula directly:
-const STACK_TARGET_Y = 4 + TEU_H/2 + 3 * (TEU_H + 0.06);                 // ≈13.28 (center)
-const STACK_CLEAR_Y  = 22;                                                  // clearance height above stack
+// ── Phase 04 target slot (col=0, row=3, bay=1) ───────────────────────────────
+const STACK_TARGET_X = PATIO_X;                          // 50.0
+const STACK_TARGET_Z = -22 + 1*(TEU_D+0.15);            // -19.45
+const STACK_TARGET_Y = 4+TEU_H/2+3*(TEU_H+0.06);        // 13.28  (center, row 3)
+const STACK_CLEAR_Y  = 22;
 
-// Patio spotlight — activated during Phase 04
-const patioSpot = new THREE.SpotLight(0xaaccff, 0, 60, Math.PI/5, 0.4, 1.5);
-patioSpot.position.set(STACK_TARGET_X, 35, STACK_TARGET_Z);
-patioSpot.target.position.set(STACK_TARGET_X, 4, STACK_TARGET_Z);
-patioSpot.castShadow = false;
+// Patio spotlight
+const patioSpot = new THREE.SpotLight(0xaaccff,0,60,Math.PI/5,0.4,1.5);
+patioSpot.position.set(STACK_TARGET_X,35,STACK_TARGET_Z);
+patioSpot.target.position.set(STACK_TARGET_X,4,STACK_TARGET_Z);
 scene.add(patioSpot); scene.add(patioSpot.target);
 
-// Patio hoist guide lines (vertical, appear during p4_lift)
-const hoistGuideMat = new THREE.LineBasicMaterial({ color: 0x22aaff, transparent: true, opacity: 0 });
+// Hoist guide line (patio)
+const hoistGuideMat = new THREE.LineBasicMaterial({color:0x22aaff,transparent:true,opacity:0});
 const hoistGuideGeo = new THREE.BufferGeometry();
-hoistGuideGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
-  STACK_TARGET_X, 4, STACK_TARGET_Z,
-  STACK_TARGET_X, STACK_CLEAR_Y + 2, STACK_TARGET_Z,
-]), 3));
-const hoistGuideLine = new THREE.Line(hoistGuideGeo, hoistGuideMat);
-scene.add(hoistGuideLine);
+hoistGuideGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array([
+  STACK_TARGET_X,4,STACK_TARGET_Z,
+  STACK_TARGET_X,STACK_CLEAR_Y+2,STACK_TARGET_Z,
+]),3));
+scene.add(new THREE.Line(hoistGuideGeo,hoistGuideMat));
+function setGuideOpacity(o){ hoistGuideMat.opacity=o; }
 
 // ── Terminal Tractor ──────────────────────────────────────────────────────────
-const TRACTOR_INIT_X  = 14;
-const TRACTOR_Y       = 4;
-const TRACTOR_Z_POS   = CRANE_Z_SPREADER;  // -10
-const CHASSIS_H       = 1.5;
-const CHASSIS_TOP_Y   = TRACTOR_Y + CHASSIS_H;              // 5.5
-const CONTAINER_ON_TRUCK_Y = CHASSIS_TOP_Y + TEU_H / 2;     // 6.8
-const SPREAD_ON_TRUCK_Y    = CONTAINER_ON_TRUCK_Y + TEU_H/2 + 0.25; // 8.35
+const TRACTOR_INIT_X=14, TRACTOR_Y=4, TRACTOR_Z_POS=CRANE_Z_SPREADER; // -10
+const CHASSIS_H=1.5;
+const CHASSIS_TOP_Y    = TRACTOR_Y+CHASSIS_H;           // 5.5
+const CONTAINER_ON_TRUCK_Y = CHASSIS_TOP_Y+TEU_H/2;     // 6.8
+const SPREAD_ON_TRUCK_Y    = CONTAINER_ON_TRUCK_Y+TEU_H/2+0.25; // 8.35
 const TRACTOR_DEST_X  = 52;
 
 const tractorGroup = new THREE.Group();
-tractorGroup.position.set(TRACTOR_INIT_X, TRACTOR_Y, TRACTOR_Z_POS);
+tractorGroup.position.set(TRACTOR_INIT_X,TRACTOR_Y,TRACTOR_Z_POS);
 scene.add(tractorGroup);
 
-boxG(tractorGroup,8.0,CHASSIS_H,2.6,MAT.tractorFrame,0,0.75,0);
-for (const rz of [-1.1,1.1]) boxG(tractorGroup,8.4,0.22,0.28,MAT.tractorFrame,0,1.61,rz);
-for (const rx of [-3.0,-1.0,1.0,3.0]) boxG(tractorGroup,0.22,0.22,2.6,MAT.tractorFrame,rx,1.61,0);
-boxG(tractorGroup,2.2,2.2,2.5,MAT.tractorCab,3.2,2.6,0);
+boxG(tractorGroup,8.0,CHASSIS_H,2.6,MAT.tractorFrame, 0,0.75,0);
+for (const rz of [-1.1,1.1]) boxG(tractorGroup,8.4,0.22,0.28,MAT.tractorFrame, 0,1.61,rz);
+for (const rx of [-3,-1,1,3]) boxG(tractorGroup,0.22,0.22,2.6,MAT.tractorFrame, rx,1.61,0);
+boxG(tractorGroup,2.2,2.2,2.5,MAT.tractorCab,   3.2,2.6,0);
 boxG(tractorGroup,0.08,1.1,2.0,MAT.tractorGlass,4.32,2.8,0);
-boxG(tractorGroup,0.5,0.12,2.5,MAT.tractorFrame,4.2,3.76,0);
-for (const wz of [-1.26,1.26]) boxG(tractorGroup,1.4,0.9,0.07,MAT.tractorGlass,3.2,2.8,wz);
-boxG(tractorGroup,0.2,2.2,2.5,MAT.tractorBody,2.05,2.6,0);
-boxG(tractorGroup,1.4,0.18,1.6,MAT.steel,0,1.6,0);
-cylG(tractorGroup,0.1,0.1,1.2,8,MAT.steelDark,4.2,4.3,0.9);
-cylG(tractorGroup,0.16,0.1,0.15,8,MAT.steelDark,4.2,4.97,0.9);
-boxG(tractorGroup,1.2,0.55,0.38,MAT.tractorBody,1.8,1.08,1.42);
-const wheelR=0.62, wheelW=0.38;
-for (const wx of [-2.8,2.4]) for (const wz of [-1.5,1.5]) {
-  cylG(tractorGroup,wheelR,wheelR,wheelW,16,MAT.tractorWheel,wx,wheelR,wz,0,0,Math.PI/2);
-  cylG(tractorGroup,wheelR*0.55,wheelR*0.55,wheelW+0.04,10,MAT.tractorRim,wx,wheelR,wz,0,0,Math.PI/2);
-  cylG(tractorGroup,0.1,0.1,wheelW+0.1,6,MAT.steel,wx,wheelR,wz,0,0,Math.PI/2);
+boxG(tractorGroup,0.5,0.12,2.5,MAT.tractorFrame, 4.2,3.76,0);
+for (const wz of [-1.26,1.26]) boxG(tractorGroup,1.4,0.9,0.07,MAT.tractorGlass, 3.2,2.8,wz);
+boxG(tractorGroup,0.2,2.2,2.5,MAT.tractorBody,  2.05,2.6,0);
+boxG(tractorGroup,1.4,0.18,1.6,MAT.steel,        0,1.6,0);
+cylG(tractorGroup,0.1,0.1,1.2,8,MAT.steelDark,   4.2,4.3,0.9);
+cylG(tractorGroup,0.16,0.1,0.15,8,MAT.steelDark, 4.2,4.97,0.9);
+boxG(tractorGroup,1.2,0.55,0.38,MAT.tractorBody, 1.8,1.08,1.42);
+const wheelR=0.62,wheelW=0.38;
+for (const wx of [-2.8,2.4]) for (const wz of [-1.5,1.5]){
+  cylG(tractorGroup,wheelR,wheelR,wheelW,16,MAT.tractorWheel,       wx,wheelR,wz, 0,0,Math.PI/2);
+  cylG(tractorGroup,wheelR*.55,wheelR*.55,wheelW+.04,10,MAT.tractorRim, wx,wheelR,wz, 0,0,Math.PI/2);
+  cylG(tractorGroup,0.1,0.1,wheelW+.1,6,MAT.steel,                  wx,wheelR,wz, 0,0,Math.PI/2);
 }
-boxG(tractorGroup,0.22,0.7,2.5,MAT.tractorFrame,4.42,1.95,0);
-boxG(tractorGroup,0.35,0.35,0.35,MAT.steel,-4.2,1.2,0);
-tractorGroup.children[0].userData = {
+boxG(tractorGroup,0.22,0.7,2.5,MAT.tractorFrame, 4.42,1.95,0);
+boxG(tractorGroup,0.35,0.35,0.35,MAT.steel,       -4.2,1.2,0);
+tractorGroup.children[0].userData={
   name:'Terminal Tractor T-07',
   info1:'Tipo: Yard Tractor / Veh. de transferencia',
   info2:'Estado: En posición de recepción'
 };
 
 // ── Lighting ──────────────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0x1a2535, 1.2));
-const dirLight = new THREE.DirectionalLight(0xdde8f0, 1.8);
+scene.add(new THREE.AmbientLight(0x1a2535,1.2));
+const dirLight = new THREE.DirectionalLight(0xdde8f0,1.8);
 dirLight.position.set(60,80,40); dirLight.castShadow=true;
 dirLight.shadow.mapSize.set(2048,2048);
 dirLight.shadow.camera.near=1; dirLight.shadow.camera.far=300;
 dirLight.shadow.camera.left=dirLight.shadow.camera.bottom=-120;
 dirLight.shadow.camera.right=dirLight.shadow.camera.top=120;
 scene.add(dirLight);
-scene.add(Object.assign(new THREE.DirectionalLight(0x0a2a4a,0.6),{position:{set:()=>{}}}).clone());
 const fillLight = new THREE.DirectionalLight(0x0a2a4a,0.6);
 fillLight.position.set(-40,20,-40); scene.add(fillLight);
-for (const lx of [-8,8]) {
-  const wl = new THREE.PointLight(0xffe8c0,1.5,30,2);
+for (const lx of [-8,8]){
+  const wl=new THREE.PointLight(0xffe8c0,1.5,30,2);
   wl.position.set(CRANE_X+lx,boomY+2,CRANE_Z-10); scene.add(wl);
 }
-const dockLight = new THREE.PointLight(0xb0c8e0,0.8,80,2);
+scene.add(Object.assign(new THREE.PointLight(0xb0c8e0,0.8,80,2),{}).clone());
+const dockLight=new THREE.PointLight(0xb0c8e0,0.8,80,2);
 dockLight.position.set(0,20,-10); scene.add(dockLight);
 
-// ── Raycaster / tooltip ───────────────────────────────────────────────────────
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-renderer.domElement.addEventListener('mousemove', (e) => {
-  const rect = renderer.domElement.getBoundingClientRect();
-  mouse.x =  ((e.clientX-rect.left)/rect.width)*2-1;
-  mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
+// ── Tooltip / raycaster ───────────────────────────────────────────────────────
+const raycaster=new THREE.Raycaster(), mouse=new THREE.Vector2();
+const tooltip=document.getElementById('tooltip');
+renderer.domElement.addEventListener('mousemove',e=>{
+  const r=renderer.domElement.getBoundingClientRect();
+  mouse.x= ((e.clientX-r.left)/r.width)*2-1;
+  mouse.y=-((e.clientY-r.top)/r.height)*2+1;
   raycaster.setFromCamera(mouse,camera);
-  const hit = raycaster.intersectObjects(scene.children,true).find(h=>h.object.userData?.name);
-  if (hit) {
+  const hit=raycaster.intersectObjects(scene.children,true).find(h=>h.object.userData?.name);
+  if(hit){
     const d=hit.object.userData;
     document.getElementById('tt-title').textContent=d.name||'';
     document.getElementById('tt-line1').textContent=d.info1||'';
     document.getElementById('tt-line2').textContent=d.info2||'';
-    tooltip.style.cssText=`display:block;left:${e.clientX-rect.left+12}px;top:${e.clientY-rect.top+12}px`;
+    tooltip.style.cssText=`display:block;left:${e.clientX-r.left+12}px;top:${e.clientY-r.top+12}px`;
   } else tooltip.style.display='none';
 });
-renderer.domElement.addEventListener('mouseleave',()=>{ tooltip.style.display='none'; });
+renderer.domElement.addEventListener('mouseleave',()=>{tooltip.style.display='none';});
 
-// ── State machine ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+//  STATE MACHINE
+// ═══════════════════════════════════════════════════════════════════════════════
+
 const TROLL_TARGET_X=-7.44, TROLL_DOCK_X=14, SPREAD_CLAMP_Y=21.69;
 
-let phase='idle', phaseStartTime=0;
-let containerDetached=false, p3ContainerOnTruck=false, p4ContainerPlaced=false;
+// ── Animation lock ── prevents concurrent phase triggers ─────────────────────
+let isAnimating   = false;
+let phase         = 'idle';
+let phaseStartTime= 0;
+
+// ── Transient state flags ─────────────────────────────────────────────────────
+let containerDetached  = false;
+let p3ContainerOnTruck = false;
+let p4ContainerPlaced  = false;
+
+// ── Cumulative SCADA counter ──────────────────────────────────────────────────
 let processedCount = 0;
 
+// ── Phase durations (ms) ──────────────────────────────────────────────────────
 const DURATIONS = {
   p1:         5000,
   p2_trolley: 1800,
@@ -879,140 +866,184 @@ const DURATIONS = {
   p3_lower:   3500,
   p3_release: 2000,
   p3_drive:   5500,
-  p4_park:    2800,  // tractor aligns with stack slot
-  p4_lift:    3000,  // container hoisted up from truck
-  p4_travel:  2000,  // horizontal traversal above stack (X+Z adjust)
-  p4_lower:   3200,  // precise descent onto stack
+  p4_park:    2800,
+  p4_lift:    3000,
+  p4_lower:   3200,
 };
 
-function easeInOut(t) { return t<0.5?2*t*t:-1+(4-2*t)*t; }
-function lerp(a,b,t) { return a+(b-a)*t; }
-function startPhase(p,now) { phase=p; phaseStartTime=now; }
+// ── Easing & lerp ─────────────────────────────────────────────────────────────
+function easeInOut(t){ return t<.5?2*t*t:-1+(4-2*t)*t; }
+function lerp(a,b,t){ return a+(b-a)*t; }
 
-function setTopbarPhase(text,ledClass) {
-  const chip = document.querySelector('.status-chip:last-child');
-  if (chip) { chip.querySelector('.led').className='led '+ledClass; chip.childNodes[1].textContent=text; }
+// ── Button lock helpers ───────────────────────────────────────────────────────
+const phaseBtns = ['btn-p1','btn-p2','btn-p3','btn-p4'].map(id=>document.getElementById(id));
+const animIndicator = document.getElementById('anim-indicator');
+
+function lockPhaseButtons(){
+  isAnimating = true;
+  phaseBtns.forEach(b=>b.classList.add('locked'));
+  animIndicator.classList.add('show');
 }
-function setActiveBtn(id) {
-  document.querySelectorAll('.phase-btn:not(.pause)').forEach(b=>b.classList.remove('active'));
+function unlockPhaseButtons(){
+  isAnimating = false;
+  phaseBtns.forEach(b=>b.classList.remove('locked'));
+  animIndicator.classList.remove('show');
+}
+
+// ── Phase start/stop ──────────────────────────────────────────────────────────
+function startPhase(p, now){
+  phase = p;
+  phaseStartTime = now;
+}
+const TERMINAL_PHASES = new Set(['idle','p1_done','p2_done','p3_done','p4_done']);
+
+// ── Status bar helpers ────────────────────────────────────────────────────────
+function setPhaseText(text, ledClass){
+  document.getElementById('chip-phase-text').textContent = text;
+  // Update the LED of the last chip (fase indicator)
+  const chip = document.querySelector('.status-chip:last-child');
+  if(chip) chip.querySelector('.led').className = 'led '+ledClass;
+}
+function setActiveBtn(id){
+  phaseBtns.forEach(b=>b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
+function setModeLabel(txt){
+  document.getElementById('mode-label').textContent = txt;
+}
 
-// Camera tween
+// ── Camera tween ──────────────────────────────────────────────────────────────
 let camTween = null;
-function tweenCamera(toPos, toTarget, durationMs, now) {
+function tweenCamera(toPos, toTarget, duration, now){
   camTween = {
     fromPos: camera.position.clone(), fromTarget: controls.target.clone(),
     toPos: toPos.clone(), toTarget: toTarget.clone(),
-    start: now, duration: durationMs,
+    start: now, duration,
   };
 }
-function tickCamTween(now) {
-  if (!camTween) return;
-  const t = Math.min((now-camTween.start)/camTween.duration,1.0);
+function tickCamTween(now){
+  if(!camTween) return;
+  const t = Math.min((now-camTween.start)/camTween.duration, 1);
   const et = easeInOut(t);
-  camera.position.lerpVectors(camTween.fromPos,camTween.toPos,et);
-  controls.target.lerpVectors(camTween.fromTarget,camTween.toTarget,et);
-  if (t>=1) camTween=null;
+  camera.position.lerpVectors(camTween.fromPos, camTween.toPos, et);
+  controls.target.lerpVectors(camTween.fromTarget, camTween.toTarget, et);
+  if(t>=1) camTween=null;
 }
 
-// SCADA update on cycle complete
-function onCycleComplete() {
-  if (p4ContainerPlaced) return;
+// ── SCADA update ──────────────────────────────────────────────────────────────
+function onCycleComplete(){
+  if(p4ContainerPlaced) return;
   p4ContainerPlaced = true;
   processedCount++;
 
-  // Update metrics panel
   const valEl = document.getElementById('val-processed');
   valEl.textContent = processedCount;
   valEl.classList.add('success');
+
   const row = document.getElementById('row-processed');
   row.classList.add('updated');
-  setTimeout(() => row.classList.remove('updated'), 2000);
+  setTimeout(()=>row.classList.remove('updated'), 2400);
 
-  // Timestamp of last cycle
-  const now = new Date();
-  document.getElementById('val-last-cycle').textContent =
-    now.toLocaleTimeString('es-CL', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const ts = new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('val-last-cycle').textContent = ts;
 
-  // Topbar LED cycle chip
-  const chip = document.getElementById('chip-cycle');
-  chip.classList.add('show');
+  document.getElementById('chip-cycle').classList.add('show');
 
-  // Mini bar nudge (+1 TEU out of 1240)
-  const pct = Math.min(64 + processedCount * 0.01, 100);
-  document.getElementById('util-bar').style.width = pct + '%';
+  const pct = Math.min(64 + processedCount*0.01, 100).toFixed(2);
+  document.getElementById('util-bar').style.width = pct+'%';
+  document.getElementById('util-pct').textContent = pct+'%';
 }
 
-// Phase 04 helper: reset hoist guide opacity
-function setGuideOpacity(o) { hoistGuideMat.opacity = o; }
+// ── Patio spotlight tick ──────────────────────────────────────────────────────
+function tickPatioSpot(now){
+  if(!['p4_park','p4_lift','p4_lower'].includes(phase)){
+    patioSpot.intensity = 0; return;
+  }
+  const t = Math.min((now-phaseStartTime)/DURATIONS[phase], 1);
+  if(phase==='p4_park')  patioSpot.intensity = lerp(0,3.5,easeInOut(t));
+  else if(phase==='p4_lower') patioSpot.intensity = 3.5 + Math.sin(now*.004)*.7;
+  else patioSpot.intensity = 3.5;
+}
 
-// Snapshot of container position at end of p3 / start of p4
-// Used as the lift origin when p4 starts
-let p4LiftFromX = TRACTOR_DEST_X;
-let p4LiftFromZ = TRACTOR_Z_POS;
+// ── p4 lift origin snapshot ───────────────────────────────────────────────────
 let p4LiftFromY = CONTAINER_ON_TRUCK_Y;
 
-function tickPhase(now) {
-  if (['idle','p1_done','p2_done','p3_done','p4_done'].includes(phase)) return;
+// ═══════════════════════════════════════════════════════════════════════════════
+//  TICK PHASE
+// ═══════════════════════════════════════════════════════════════════════════════
+function tickPhase(now){
+  if(TERMINAL_PHASES.has(phase)) return;
 
   const elapsed = now - phaseStartTime;
   const dur = DURATIONS[phase] || 3000;
-  const t = Math.min(elapsed/dur, 1.0);
+  const t  = Math.min(elapsed/dur, 1);
   const et = easeInOut(t);
 
-  // ── 01 ──
-  if (phase==='p1') {
-    shipGroup.position.x = lerp(200,0,et);
-    if (t>=1) { shipGroup.position.x=0; phase='p1_done'; setTopbarPhase('FASE 01 COMPLETA','led-green'); }
+  // ── 01: Arribo ──
+  if(phase==='p1'){
+    shipGroup.position.x = lerp(200, 0, et);
+    if(t>=1){
+      shipGroup.position.x=0;
+      phase='p1_done';
+      setPhaseText('FASE 01 COMPLETA','led-green');
+      unlockPhaseButtons();
+    }
   }
-  // ── 02 ──
-  else if (phase==='p2_trolley') {
+  // ── 02: Descarga ──
+  else if(phase==='p2_trolley'){
     moveTrolleyAndSpreader(lerp(TROLL_INIT_X,TROLL_TARGET_X,et), spreaderMesh.position.y);
-    if (t>=1) startPhase('p2_descend',now);
+    if(t>=1) startPhase('p2_descend',now);
   }
-  else if (phase==='p2_descend') {
-    const sy=lerp(SPREAD_HIGH_Y,SPREAD_CLAMP_Y,et);
-    moveTrolleyAndSpreader(TROLL_TARGET_X,sy);
-    if (t>=1) {
-      if (!containerDetached && targetContainerMesh) {
+  else if(phase==='p2_descend'){
+    moveTrolleyAndSpreader(TROLL_TARGET_X, lerp(SPREAD_HIGH_Y,SPREAD_CLAMP_Y,et));
+    if(t>=1){
+      if(!containerDetached && targetContainerMesh){
         const wp=new THREE.Vector3(); targetContainerMesh.getWorldPosition(wp);
-        teuGroup.remove(targetContainerMesh); targetContainerMesh.position.copy(wp);
-        scene.add(targetContainerMesh); containerDetached=true;
+        teuGroup.remove(targetContainerMesh);
+        targetContainerMesh.position.copy(wp);
+        scene.add(targetContainerMesh);
+        containerDetached=true;
       }
       startPhase('p2_lift',now);
     }
   }
-  else if (phase==='p2_lift') {
+  else if(phase==='p2_lift'){
     const sy=lerp(SPREAD_CLAMP_Y,SPREAD_HIGH_Y,et);
     moveTrolleyAndSpreader(TROLL_TARGET_X,sy);
-    if (containerDetached && targetContainerMesh)
-      targetContainerMesh.position.set(TROLL_TARGET_X,sy-0.25-TEU_H/2,CRANE_Z_SPREADER);
-    if (t>=1) startPhase('p2_travel',now);
+    if(containerDetached && targetContainerMesh)
+      targetContainerMesh.position.set(TROLL_TARGET_X, sy-0.25-TEU_H/2, CRANE_Z_SPREADER);
+    if(t>=1) startPhase('p2_travel',now);
   }
-  else if (phase==='p2_travel') {
+  else if(phase==='p2_travel'){
     const tx=lerp(TROLL_TARGET_X,TROLL_DOCK_X,et);
     moveTrolleyAndSpreader(tx,SPREAD_HIGH_Y);
-    if (containerDetached && targetContainerMesh)
-      targetContainerMesh.position.set(tx,SPREAD_HIGH_Y-0.25-TEU_H/2,CRANE_Z_SPREADER);
-    if (t>=1) { phase='p2_done'; setTopbarPhase('FASE 02 COMPLETA','led-green'); }
-  }
-  // ── 03 ──
-  else if (phase==='p3_lower') {
-    const sy=lerp(SPREAD_HIGH_Y,SPREAD_ON_TRUCK_Y,et);
-    moveTrolleyAndSpreader(TROLL_DOCK_X,sy);
-    if (containerDetached && targetContainerMesh)
-      targetContainerMesh.position.set(TROLL_DOCK_X,Math.max(sy-0.25-TEU_H/2,CONTAINER_ON_TRUCK_Y),CRANE_Z_SPREADER);
-    if (t>=1) {
-      if (targetContainerMesh) targetContainerMesh.position.set(TROLL_DOCK_X,CONTAINER_ON_TRUCK_Y,CRANE_Z_SPREADER);
-      p3ContainerOnTruck=true; startPhase('p3_release',now);
+    if(containerDetached && targetContainerMesh)
+      targetContainerMesh.position.set(tx, SPREAD_HIGH_Y-0.25-TEU_H/2, CRANE_Z_SPREADER);
+    if(t>=1){
+      phase='p2_done';
+      setPhaseText('FASE 02 COMPLETA','led-green');
+      unlockPhaseButtons();
     }
   }
-  else if (phase==='p3_release') {
-    moveTrolleyAndSpreader(TROLL_DOCK_X,lerp(SPREAD_ON_TRUCK_Y,SPREAD_HIGH_Y,et));
-    if (targetContainerMesh && p3ContainerOnTruck)
+  // ── 03: Traslado ──
+  else if(phase==='p3_lower'){
+    const sy=lerp(SPREAD_HIGH_Y,SPREAD_ON_TRUCK_Y,et);
+    moveTrolleyAndSpreader(TROLL_DOCK_X,sy);
+    if(containerDetached && targetContainerMesh)
+      targetContainerMesh.position.set(TROLL_DOCK_X,
+        Math.max(sy-0.25-TEU_H/2, CONTAINER_ON_TRUCK_Y), CRANE_Z_SPREADER);
+    if(t>=1){
+      if(targetContainerMesh)
+        targetContainerMesh.position.set(TROLL_DOCK_X,CONTAINER_ON_TRUCK_Y,CRANE_Z_SPREADER);
+      p3ContainerOnTruck=true;
+      startPhase('p3_release',now);
+    }
+  }
+  else if(phase==='p3_release'){
+    moveTrolleyAndSpreader(TROLL_DOCK_X, lerp(SPREAD_ON_TRUCK_Y,SPREAD_HIGH_Y,et));
+    if(targetContainerMesh && p3ContainerOnTruck)
       targetContainerMesh.position.set(tractorGroup.position.x,CONTAINER_ON_TRUCK_Y,CRANE_Z_SPREADER);
-    if (t>=1) {
+    if(t>=1){
       moveTrolleyAndSpreader(TROLL_INIT_X,SPREAD_HIGH_Y);
       startPhase('p3_drive',now);
       tweenCamera(
@@ -1022,192 +1053,222 @@ function tickPhase(now) {
       );
     }
   }
-  else if (phase==='p3_drive') {
+  else if(phase==='p3_drive'){
     const tx=lerp(TRACTOR_INIT_X,TRACTOR_DEST_X,et);
     tractorGroup.position.x=tx;
-    if (targetContainerMesh && p3ContainerOnTruck)
+    if(targetContainerMesh && p3ContainerOnTruck)
       targetContainerMesh.position.set(tx,CONTAINER_ON_TRUCK_Y,CRANE_Z_SPREADER);
-    if (!camTween) {
+    if(!camTween){
       controls.target.lerp(new THREE.Vector3(tx+5,7,CRANE_Z_SPREADER),0.025);
       camera.position.lerp(new THREE.Vector3(tx+8,38,55),0.018);
     }
-    if (t>=1) {
+    if(t>=1){
       tractorGroup.position.x=TRACTOR_DEST_X;
-      if (targetContainerMesh) targetContainerMesh.position.set(TRACTOR_DEST_X,CONTAINER_ON_TRUCK_Y,CRANE_Z_SPREADER);
-      phase='p3_done'; setTopbarPhase('FASE 03 COMPLETA','led-green');
+      if(targetContainerMesh) targetContainerMesh.position.set(TRACTOR_DEST_X,CONTAINER_ON_TRUCK_Y,CRANE_Z_SPREADER);
+      phase='p3_done';
+      setPhaseText('FASE 03 COMPLETA','led-green');
+      unlockPhaseButtons();
     }
   }
-  // ── 04 ──
-  else if (phase==='p4_park') {
-    // Tractor maneuvers from (TRACTOR_DEST_X, ?, TRACTOR_Z_POS) → (STACK_TARGET_X, ?, STACK_TARGET_Z)
-    const tx = lerp(TRACTOR_DEST_X, STACK_TARGET_X, et);
-    const tz = lerp(TRACTOR_Z_POS,  STACK_TARGET_Z,  et);
-    tractorGroup.position.x = tx;
-    tractorGroup.position.z = tz;
-    // Container stays on chassis
-    if (targetContainerMesh && p3ContainerOnTruck)
-      targetContainerMesh.position.set(tx, CONTAINER_ON_TRUCK_Y, tz);
-    if (t>=1) {
-      tractorGroup.position.set(STACK_TARGET_X, TRACTOR_Y, STACK_TARGET_Z);
-      if (targetContainerMesh) targetContainerMesh.position.set(STACK_TARGET_X, CONTAINER_ON_TRUCK_Y, STACK_TARGET_Z);
-      // Snapshot lift origin
-      p4LiftFromX=STACK_TARGET_X; p4LiftFromZ=STACK_TARGET_Z; p4LiftFromY=CONTAINER_ON_TRUCK_Y;
-      startPhase('p4_lift', now);
-      // Show hoist guide line
+  // ── 04: Apilado ──
+  else if(phase==='p4_park'){
+    const tx=lerp(TRACTOR_DEST_X,STACK_TARGET_X,et);
+    const tz=lerp(TRACTOR_Z_POS, STACK_TARGET_Z,et);
+    tractorGroup.position.set(tx,TRACTOR_Y,tz);
+    if(targetContainerMesh && p3ContainerOnTruck)
+      targetContainerMesh.position.set(tx,CONTAINER_ON_TRUCK_Y,tz);
+    if(t>=1){
+      tractorGroup.position.set(STACK_TARGET_X,TRACTOR_Y,STACK_TARGET_Z);
+      if(targetContainerMesh) targetContainerMesh.position.set(STACK_TARGET_X,CONTAINER_ON_TRUCK_Y,STACK_TARGET_Z);
+      p4LiftFromY = CONTAINER_ON_TRUCK_Y;
       setGuideOpacity(0.6);
+      startPhase('p4_lift',now);
     }
   }
-  else if (phase==='p4_lift') {
-    // Container lifts straight up off chassis
-    const cy = lerp(p4LiftFromY, STACK_CLEAR_Y, et);
-    if (targetContainerMesh)
-      targetContainerMesh.position.set(p4LiftFromX, cy, p4LiftFromZ);
-    // Fade guide line in → out at top
-    setGuideOpacity(t < 0.7 ? 0.6 : lerp(0.6, 0, (t-0.7)/0.3));
-    if (t>=1) {
-      if (targetContainerMesh) targetContainerMesh.position.set(STACK_TARGET_X, STACK_CLEAR_Y, STACK_TARGET_Z);
+  else if(phase==='p4_lift'){
+    const cy=lerp(p4LiftFromY,STACK_CLEAR_Y,et);
+    if(targetContainerMesh) targetContainerMesh.position.set(STACK_TARGET_X,cy,STACK_TARGET_Z);
+    setGuideOpacity(t<0.7 ? 0.6 : lerp(0.6,0,(t-0.7)/0.3));
+    if(t>=1){
+      if(targetContainerMesh) targetContainerMesh.position.set(STACK_TARGET_X,STACK_CLEAR_Y,STACK_TARGET_Z);
       setGuideOpacity(0);
-      startPhase('p4_lower', now);
+      startPhase('p4_lower',now);
     }
   }
-  else if (phase==='p4_lower') {
-    // Precise descent onto stack — clamp prevents clipping row-2 containers
-    const bottomClamp = STACK_TARGET_Y - TEU_H/2;  // container bottom must not go below row-2 top
-    const cy = Math.max(lerp(STACK_CLEAR_Y, STACK_TARGET_Y, et), bottomClamp);
-    if (targetContainerMesh)
-      targetContainerMesh.position.set(STACK_TARGET_X, cy, STACK_TARGET_Z);
-    if (t>=1) {
-      // Snap to mathematically exact final position
-      if (targetContainerMesh) {
-        targetContainerMesh.position.set(STACK_TARGET_X, STACK_TARGET_Y, STACK_TARGET_Z);
-        targetContainerMesh.userData = {
-          name: 'Contenedor APILADO', info1:'Patio C1 · Posición R4', info2:'Estado: Almacenado'
+  else if(phase==='p4_lower'){
+    const bottomClamp=STACK_TARGET_Y-TEU_H/2;
+    const cy=Math.max(lerp(STACK_CLEAR_Y,STACK_TARGET_Y,et), bottomClamp);
+    if(targetContainerMesh) targetContainerMesh.position.set(STACK_TARGET_X,cy,STACK_TARGET_Z);
+    if(t>=1){
+      if(targetContainerMesh){
+        targetContainerMesh.position.set(STACK_TARGET_X,STACK_TARGET_Y,STACK_TARGET_Z);
+        targetContainerMesh.userData={
+          name:'Contenedor APILADO', info1:'Patio C1 · Posición R4', info2:'Estado: Almacenado'
         };
       }
-      patioSpot.intensity = 0; // extinguish spotlight
-      phase = 'p4_done';
-      setTopbarPhase('FASE 04 COMPLETA — CICLO OK','led-green');
-      document.getElementById('mode-label').textContent =
-        'TERMINAL DE CONTENEDORES  |  MODO: CICLO COMPLETO / APILADO PATIO';
+      phase='p4_done';
+      setPhaseText('FASE 04 COMPLETA — CICLO OK','led-green');
+      setModeLabel('TERMINAL DE CONTENEDORES  |  MODO: CICLO COMPLETO / APILADO PATIO');
+      unlockPhaseButtons();
       onCycleComplete();
     }
   }
 }
 
-// ── Button handlers ───────────────────────────────────────────────────────────
-function resetScene() {
-  containerDetached=false; p3ContainerOnTruck=false; p4ContainerPlaced=false;
-  tractorGroup.position.set(TRACTOR_INIT_X, TRACTOR_Y, TRACTOR_Z_POS);
-  moveTrolleyAndSpreader(TROLL_INIT_X, SPREAD_HIGH_Y);
-  patioSpot.intensity=0; setGuideOpacity(0);
-  camTween=null;
-  if (targetContainerMesh) {
-    if (targetContainerMesh.parent!==teuGroup) {
-      if (targetContainerMesh.parent) targetContainerMesh.parent.remove(targetContainerMesh);
-      targetContainerMesh.position.set(-7.44,20.14,0);
-      teuGroup.add(targetContainerMesh);
-    }
-    targetContainerMesh.userData = {
-      name:'Contenedor TEU', info1:'Bahía 2 · Col 4 · Fila 4', info2:'En cubierta'
-    };
+// ═══════════════════════════════════════════════════════════════════════════════
+//  RESET HELPERS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Restores container to its original slot in teuGroup (called by all resets)
+function restoreContainer(){
+  if(!targetContainerMesh) return;
+  if(targetContainerMesh.parent !== teuGroup){
+    if(targetContainerMesh.parent) targetContainerMesh.parent.remove(targetContainerMesh);
+    targetContainerMesh.position.copy(CONTAINER_LOCAL_POS);
+    teuGroup.add(targetContainerMesh);
   }
+  targetContainerMesh.userData={
+    name:'Contenedor TEU', info1:'Bahía 2 · Col 4 · Fila 4', info2:'En cubierta'
+  };
 }
 
-document.getElementById('btn-p1').addEventListener('click', () => {
-  setActiveBtn('btn-p1');
-  resetScene();
+// Partial reset: scene state without touching SCADA or ship position
+function resetDynamics(){
+  containerDetached=false; p3ContainerOnTruck=false; p4ContainerPlaced=false;
+  tractorGroup.position.set(TRACTOR_INIT_X,TRACTOR_Y,TRACTOR_Z_POS);
+  moveTrolleyAndSpreader(TROLL_INIT_X,SPREAD_HIGH_Y);
+  patioSpot.intensity=0; setGuideOpacity(0);
+  camTween=null;
+  restoreContainer();
+}
+
+// ── FULL RESET — restores everything to day-zero state ───────────────────────
+function fullReset(){
+  // Stop any running animation immediately
+  phase='idle';
+  unlockPhaseButtons();
+
+  // Restore all dynamics
+  resetDynamics();
+
+  // Ship back at sea
   shipGroup.position.set(200,0,-10);
-  setTopbarPhase('FASE 01: ARRIBO','led-yellow');
-  document.getElementById('mode-label').textContent='TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 01';
+
+  // Reset SCADA counters
+  processedCount=0;
+  const valEl=document.getElementById('val-processed');
+  valEl.textContent='0'; valEl.classList.remove('success');
+  document.getElementById('val-last-cycle').textContent='—';
+  document.getElementById('chip-cycle').classList.remove('show');
+  document.getElementById('util-bar').style.width='64%';
+  document.getElementById('util-pct').textContent='64%';
+  document.getElementById('row-processed').classList.remove('updated');
+
+  // Reset UI
+  phaseBtns.forEach(b=>b.classList.remove('active'));
+  setPhaseText('FASE: —','led-red');
+  setModeLabel('TERMINAL DE CONTENEDORES  |  MODO: ESTÁTICO / VISUALIZACIÓN');
+  document.getElementById('tooltip').style.display='none';
+
+  // Camera home
+  tweenCamera(CAM_HOME_POS, CAM_HOME_TARGET, 1800, performance.now());
+}
+
+// ── PAUSE — halts animation mid-phase ────────────────────────────────────────
+function pauseAnimation(){
+  if(!isAnimating) return;
+  phase='idle';
+  unlockPhaseButtons();
+  setPhaseText('PAUSADO','led-yellow');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  BUTTON HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+document.getElementById('btn-pause').addEventListener('click', pauseAnimation);
+document.getElementById('btn-reset').addEventListener('click', fullReset);
+
+document.getElementById('btn-p1').addEventListener('click', ()=>{
+  if(isAnimating) return;
+  setActiveBtn('btn-p1');
+  resetDynamics();
+  shipGroup.position.set(200,0,-10);
+  setPhaseText('FASE 01: ARRIBO','led-yellow');
+  setModeLabel('TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 01');
+  tweenCamera(new THREE.Vector3(90,55,90), new THREE.Vector3(0,4,0), 1800, performance.now());
+  lockPhaseButtons();
   startPhase('p1', performance.now());
-  tweenCamera(new THREE.Vector3(90,55,90), new THREE.Vector3(0,4,0), 2000, performance.now());
 });
 
-document.getElementById('btn-p2').addEventListener('click', () => {
+document.getElementById('btn-p2').addEventListener('click', ()=>{
+  if(isAnimating) return;
   setActiveBtn('btn-p2');
-  resetScene();
+  resetDynamics();
   shipGroup.position.set(0,0,-10);
-  setTopbarPhase('FASE 02: DESCARGA','led-yellow');
-  document.getElementById('mode-label').textContent='TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 02';
+  setPhaseText('FASE 02: DESCARGA','led-yellow');
+  setModeLabel('TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 02');
+  camTween=null; // keep current camera
+  lockPhaseButtons();
   startPhase('p2_trolley', performance.now());
 });
 
-document.getElementById('btn-p3').addEventListener('click', () => {
+document.getElementById('btn-p3').addEventListener('click', ()=>{
+  if(isAnimating) return;
   setActiveBtn('btn-p3');
-  resetScene();
+  resetDynamics();
   shipGroup.position.set(0,0,-10);
-  // Set end-of-p2 state
-  if (targetContainerMesh) {
-    if (targetContainerMesh.parent!==scene) {
-      if (targetContainerMesh.parent) targetContainerMesh.parent.remove(targetContainerMesh);
-      scene.add(targetContainerMesh);
-    }
+  // Set up end-of-p2 state: container in scene at dock drop point
+  if(targetContainerMesh){
+    if(targetContainerMesh.parent===teuGroup) teuGroup.remove(targetContainerMesh);
+    else if(targetContainerMesh.parent) targetContainerMesh.parent.remove(targetContainerMesh);
     targetContainerMesh.position.set(TROLL_DOCK_X, SPREAD_HIGH_Y-0.25-TEU_H/2, CRANE_Z_SPREADER);
+    scene.add(targetContainerMesh);
     containerDetached=true;
   }
   moveTrolleyAndSpreader(TROLL_DOCK_X, SPREAD_HIGH_Y);
-  setTopbarPhase('FASE 03: TRASLADO','led-yellow');
-  document.getElementById('mode-label').textContent='TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 03';
-  startPhase('p3_lower', performance.now());
+  setPhaseText('FASE 03: TRASLADO','led-yellow');
+  setModeLabel('TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 03');
   tweenCamera(
     new THREE.Vector3(TROLL_DOCK_X+5,45,70),
     new THREE.Vector3(TROLL_DOCK_X,8,CRANE_Z_SPREADER),
     1600, performance.now()
   );
+  lockPhaseButtons();
+  startPhase('p3_lower', performance.now());
 });
 
-document.getElementById('btn-p4').addEventListener('click', () => {
+document.getElementById('btn-p4').addEventListener('click', ()=>{
+  if(isAnimating) return;
   setActiveBtn('btn-p4');
-  p4ContainerPlaced=false;
-  patioSpot.intensity=0; setGuideOpacity(0);
+  // Reset dynamics but leave ship docked
+  resetDynamics();
   shipGroup.position.set(0,0,-10);
-
-  // Reset tractor to end-of-p3 state
-  tractorGroup.position.set(TRACTOR_DEST_X, TRACTOR_Y, TRACTOR_Z_POS);
-  moveTrolleyAndSpreader(TROLL_INIT_X, SPREAD_HIGH_Y);
-
-  // Container on truck at end-of-p3 position
-  if (targetContainerMesh) {
-    if (targetContainerMesh.parent!==scene) {
-      if (targetContainerMesh.parent) targetContainerMesh.parent.remove(targetContainerMesh);
-      scene.add(targetContainerMesh);
-    }
-    targetContainerMesh.position.set(TRACTOR_DEST_X, CONTAINER_ON_TRUCK_Y, TRACTOR_Z_POS);
+  // Set up end-of-p3 state: container on tractor at TRACTOR_DEST_X
+  tractorGroup.position.set(TRACTOR_DEST_X,TRACTOR_Y,TRACTOR_Z_POS);
+  if(targetContainerMesh){
+    if(targetContainerMesh.parent===teuGroup) teuGroup.remove(targetContainerMesh);
+    else if(targetContainerMesh.parent) targetContainerMesh.parent.remove(targetContainerMesh);
+    targetContainerMesh.position.set(TRACTOR_DEST_X,CONTAINER_ON_TRUCK_Y,TRACTOR_Z_POS);
+    scene.add(targetContainerMesh);
     containerDetached=true; p3ContainerOnTruck=true;
   }
-
-  setTopbarPhase('FASE 04: APILADO','led-yellow');
-  document.getElementById('mode-label').textContent='TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 04';
-
-  // Camera: clean side view of patio
+  moveTrolleyAndSpreader(TROLL_INIT_X,SPREAD_HIGH_Y);
+  setPhaseText('FASE 04: APILADO','led-yellow');
+  setModeLabel('TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 04');
   tweenCamera(
-    new THREE.Vector3(PATIO_X - 10, 40, 30),
-    new THREE.Vector3(PATIO_X + 5,  8, STACK_TARGET_Z),
+    new THREE.Vector3(PATIO_X-10,40,30),
+    new THREE.Vector3(PATIO_X+5,8,STACK_TARGET_Z),
     1800, performance.now()
   );
-
+  lockPhaseButtons();
   startPhase('p4_park', performance.now());
 });
 
-document.getElementById('btn-pause').addEventListener('click', () => { phase='idle'; });
-
-// ── Spotlight pulse during Phase 04 ─────────────────────────────────────────
-function tickPatioSpot(now) {
-  if (!['p4_park','p4_lift','p4_lower'].includes(phase)) return;
-  // Ramp up during park, hold during lift/lower
-  const t = Math.min((now-phaseStartTime)/DURATIONS[phase],1.0);
-  if (phase==='p4_park') {
-    patioSpot.intensity = lerp(0, 3.5, easeInOut(t));
-  } else if (phase==='p4_lower') {
-    // Soft pulse to draw eye
-    patioSpot.intensity = 3.5 + Math.sin(now*0.004)*0.8;
-  } else {
-    patioSpot.intensity = 3.5;
-  }
-}
-
-// ── Render loop ───────────────────────────────────────────────────────────────
-function animate() {
+// ═══════════════════════════════════════════════════════════════════════════════
+//  RENDER LOOP  — single RAF, no nested loops, no accumulation
+// ═══════════════════════════════════════════════════════════════════════════════
+function animate(){
   requestAnimationFrame(animate);
   const now = performance.now();
   controls.update();
