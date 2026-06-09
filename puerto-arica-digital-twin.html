@@ -476,11 +476,11 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
 renderer.toneMapping       = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.85;
+renderer.toneMappingExposure = 1.3;
 renderer.setClearColor(0x080c12);
 
 const scene = new THREE.Scene();
-scene.fog   = new THREE.FogExp2(0x0a0e16, 0.012);
+scene.fog   = new THREE.FogExp2(0x0d1520, 0.006);
 
 const camera = new THREE.PerspectiveCamera(45, 1, 0.5, 600);
 camera.position.set(90, 55, 90);
@@ -800,15 +800,15 @@ tractorGroup.children[0].userData={
 };
 
 // ── Lighting ──────────────────────────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0x1a2535,1.2));
-const dirLight = new THREE.DirectionalLight(0xdde8f0,1.8);
+scene.add(new THREE.AmbientLight(0x3a5070,2.0));
+const dirLight = new THREE.DirectionalLight(0xdde8f0,2.5);
 dirLight.position.set(60,80,40); dirLight.castShadow=true;
 dirLight.shadow.mapSize.set(2048,2048);
 dirLight.shadow.camera.near=1; dirLight.shadow.camera.far=300;
 dirLight.shadow.camera.left=dirLight.shadow.camera.bottom=-120;
 dirLight.shadow.camera.right=dirLight.shadow.camera.top=120;
 scene.add(dirLight);
-const fillLight = new THREE.DirectionalLight(0x0a2a4a,0.6);
+const fillLight = new THREE.DirectionalLight(0x1a4a7a,1.0);
 fillLight.position.set(-40,20,-40); scene.add(fillLight);
 for (const lx of [-8,8]){
   const wl=new THREE.PointLight(0xffe8c0,1.5,30,2);
