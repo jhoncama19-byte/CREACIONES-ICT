@@ -478,6 +478,15 @@
         </div>
 
         <div class="kb-item">
+          <div class="kb-icon">🚛</div>
+          <div class="kb-text">
+            <strong>Terminal Tractor (Yard Tractor)</strong>
+            Vehículo de transferencia portuaria. Transporta contenedores
+            entre el muelle y el patio de almacenamiento a baja velocidad.
+          </div>
+        </div>
+
+        <div class="kb-item">
           <div class="kb-icon">📡</div>
           <div class="kb-text">
             <strong>Digital Twin</strong>
@@ -577,6 +586,13 @@ const MAT = {
     new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.7, metalness: 0.2 }),
     new THREE.MeshStandardMaterial({ color: 0x381818, roughness: 0.7, metalness: 0.2 }),
   ],
+  // Terminal Tractor materials
+  tractorBody:  new THREE.MeshStandardMaterial({ color: 0xd4a020, roughness: 0.5, metalness: 0.4 }),
+  tractorCab:   new THREE.MeshStandardMaterial({ color: 0x2a3545, roughness: 0.5, metalness: 0.5 }),
+  tractorFrame: new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.6, metalness: 0.7 }),
+  tractorWheel: new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9, metalness: 0.1 }),
+  tractorRim:   new THREE.MeshStandardMaterial({ color: 0x606878, roughness: 0.3, metalness: 0.9 }),
+  tractorGlass: new THREE.MeshStandardMaterial({ color: 0x4488aa, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.7 }),
 };
 
 // ── Helpers (scene) ──────────────────────────────────────────────────────────
@@ -611,9 +627,10 @@ function boxG(grp, w, h, d, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
   grp.add(m);
   return m;
 }
-function cylG(grp, rt, rb, h, seg, mat, x=0, y=0, z=0) {
+function cylG(grp, rt, rb, h, seg, mat, x=0, y=0, z=0, rx=0, ry=0, rz=0) {
   const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
   m.position.set(x, y, z);
+  m.rotation.set(rx, ry, rz);
   m.castShadow = m.receiveShadow = true;
   grp.add(m);
   return m;
@@ -660,25 +677,18 @@ for (const rz of [-16, -4]) {
 }
 
 // ── Container Ship (shipGroup) ────────────────────────────────────────────────
-// Group world position when docked: (0, 0, -10)
-// Local coords = absolute - group_world_pos
-// local_x = abs_x - 0 = abs_x
-// local_y = abs_y - 0 = abs_y
-// local_z = abs_z - (-10) = abs_z + 10
 const SHIP_Y = 0;
 
 const shipGroup = new THREE.Group();
-shipGroup.position.set(200, 0, -10); // starts at sea
+shipGroup.position.set(200, 0, -10);
 scene.add(shipGroup);
 
 // Hull (local coords)
 const hull = boxG(shipGroup, 140, 10, 22, MAT.hullDark, 0, SHIP_Y + 5, 0);
 hull.userData = { name: 'Buque: EVER GLORY', info1: 'Eslora: 140 m  Calado: 8.5 m', info2: 'Carga: 1,240 TEU' };
 
-// Anti-fouling
 boxG(shipGroup, 140, 4, 22, MAT.hullRed, 0, SHIP_Y + 1, 0);
 
-// Bow
 const bowGeo = new THREE.CylinderGeometry(0, 11, 18, 4, 1);
 const bow = new THREE.Mesh(bowGeo, MAT.hullDark);
 bow.position.set(70, SHIP_Y + 5, 0);
@@ -687,7 +697,6 @@ bow.scale.set(1, 0.55, 1);
 bow.castShadow = true;
 shipGroup.add(bow);
 
-// Stern
 const sternGeo = new THREE.CylinderGeometry(0, 11, 12, 4, 1);
 const stern = new THREE.Mesh(sternGeo, MAT.hullDark);
 stern.position.set(-70, SHIP_Y + 5, 0);
@@ -696,21 +705,14 @@ stern.scale.set(1, 0.55, 1);
 stern.castShadow = true;
 shipGroup.add(stern);
 
-// Deck
 boxG(shipGroup, 140, 0.8, 22, MAT.deckPlate, 0, SHIP_Y + 10.4, 0);
-
-// Superstructure
 boxG(shipGroup, 20, 14, 18, MAT.superstruc, -52, SHIP_Y + 17, 0);
 boxG(shipGroup, 16, 2, 14, MAT.steel, -52, SHIP_Y + 24, 0);
-
-// Funnel
 cylG(shipGroup, 1.2, 2, 8, 12, MAT.steelDark, -52, SHIP_Y + 29, 0);
 cylG(shipGroup, 2.5, 2.5, 1, 12, new THREE.MeshStandardMaterial({color:0x1a1a1a}), -52, SHIP_Y + 33, 0);
-
-// Mast
 cylG(shipGroup, 0.2, 0.2, 12, 6, MAT.steel, 60, SHIP_Y + 17, 0);
 
-// ── Containers on ship deck (teuGroup is child of shipGroup) ──────────────────
+// ── Containers on ship deck ──────────────────────────────────────────────────
 const TEU_W = 6.1, TEU_H = 2.6, TEU_D = 2.4;
 const COLS   = 11;
 const ROWS   = 4;
@@ -721,7 +723,7 @@ function teuColor(r, c, b) {
 }
 
 const teuGroup = new THREE.Group();
-shipGroup.add(teuGroup); // teuGroup is child of shipGroup
+shipGroup.add(teuGroup);
 
 let targetContainerMesh = null;
 
@@ -730,7 +732,6 @@ for (let bay = 0; bay < BAYS; bay++) {
   for (let col = 0; col < COLS; col++) {
     const xOff = (col - (COLS - 1) / 2) * (TEU_W + 0.12) + 5;
     for (let row = 0; row < ROWS; row++) {
-      // local to teuGroup (= local to shipGroup, no SHIP_X/SHIP_Z offset)
       const yBase = SHIP_Y + 10.8 + row * (TEU_H + 0.08);
       const geo = new THREE.BoxGeometry(TEU_W, TEU_H, TEU_D);
       const mesh = new THREE.Mesh(geo, teuColor(row, col, bay));
@@ -743,12 +744,10 @@ for (let bay = 0; bay < BAYS; bay++) {
       };
       teuGroup.add(mesh);
 
-      // Save target container reference: col===3, row===3 (top), bay===1 (middle)
       if (col === 3 && row === 3 && bay === 1) {
         targetContainerMesh = mesh;
       }
 
-      // Corner castings
       const cornerMat = new THREE.MeshStandardMaterial({ color: 0x8898aa, metalness: 0.8, roughness: 0.3 });
       for (const cx of [-1, 1]) {
         for (const cz of [-1, 1]) {
@@ -810,16 +809,13 @@ line3([
 ], cableLineMat);
 
 cyl(0.3, 0.3, 8, 6, MAT.cranePaint, CRANE_X, boomY + 4, CRANE_Z - 10);
-
-// Operator cab
 box(2.5, 2, 2, MAT.superstruc, CRANE_X - 8, boomY - 2, CRANE_Z - 4);
 
-// ── Dynamic Crane Parts (trolley, spreader, hoist cables) ─────────────────────
-const CRANE_Z_SPREADER = -10; // Z aligned with target container world
+// ── Dynamic Crane Parts ───────────────────────────────────────────────────────
+const CRANE_Z_SPREADER = -10;
 const TROLL_INIT_X = -13;
 const SPREAD_HIGH_Y = 30.5;
 
-// Trolley mesh (added to scene)
 const trolleyMesh = new THREE.Mesh(
   new THREE.BoxGeometry(4, 1.2, 4),
   MAT.steel
@@ -828,7 +824,6 @@ trolleyMesh.position.set(TROLL_INIT_X, boomY - 1.5, CRANE_Z_SPREADER);
 trolleyMesh.castShadow = trolleyMesh.receiveShadow = true;
 scene.add(trolleyMesh);
 
-// Spreader mesh (added to scene)
 const spreaderMesh = new THREE.Mesh(
   new THREE.BoxGeometry(TEU_W + 0.4, 0.5, TEU_D + 0.4),
   MAT.spreader
@@ -837,7 +832,6 @@ spreaderMesh.position.set(TROLL_INIT_X, SPREAD_HIGH_Y, CRANE_Z_SPREADER);
 spreaderMesh.castShadow = spreaderMesh.receiveShadow = true;
 scene.add(spreaderMesh);
 
-// Spreader twist-locks (added to scene)
 const spreaderLocks = [];
 const lockOffsets = [[-3.1,-1.3],[3.1,-1.3],[-3.1,1.3],[3.1,1.3]];
 for (const [sx, sz] of lockOffsets) {
@@ -851,7 +845,6 @@ for (const [sx, sz] of lockOffsets) {
   spreaderLocks.push(lock);
 }
 
-// Hoist cable geometries (dynamic BufferGeometry lines)
 const hoistCableGeos = [];
 const hoistCableLines_dyn = [];
 const dynCableLineMat = new THREE.LineBasicMaterial({ color: 0x888898 });
@@ -893,7 +886,6 @@ function moveTrolleyAndSpreader(tx, sy) {
   updateHoistCables();
 }
 
-// Initial cable draw
 updateHoistCables();
 
 // ── Dock side equipment ───────────────────────────────────────────────────────
@@ -925,6 +917,92 @@ for (let col = 0; col < 5; col++) {
     }
   }
 }
+
+// ── Terminal Tractor (tractorGroup) ──────────────────────────────────────────
+// Chassis dimensions: 8m long (X), 1.5m tall, 2.6m wide (Z)
+// World position: X=TROLL_DOCK_X, Y=4 (dock surface), Z=CRANE_Z_SPREADER
+// Container lands on chassis top: Y = 4 + 1.5 = 5.5
+// Container center Y = 5.5 + TEU_H/2 = 5.5 + 1.3 = 6.8
+
+const TRACTOR_INIT_X   = 14;   // = TROLL_DOCK_X, under crane drop point
+const TRACTOR_Y        = 4;    // dock surface
+const TRACTOR_Z_POS    = CRANE_Z_SPREADER; // -10
+const CHASSIS_H        = 1.5;
+const CHASSIS_TOP_Y    = TRACTOR_Y + CHASSIS_H;              // 5.5 (world)
+const CONTAINER_ON_TRUCK_Y = CHASSIS_TOP_Y + TEU_H / 2;     // 6.8 (world, container center)
+const SPREAD_ON_TRUCK_Y    = CONTAINER_ON_TRUCK_Y + TEU_H / 2 + 0.25; // 8.35 (spreader Y)
+
+const TRACTOR_DEST_X   = 52;   // drive to patio area
+
+const tractorGroup = new THREE.Group();
+tractorGroup.position.set(TRACTOR_INIT_X, TRACTOR_Y, TRACTOR_Z_POS);
+scene.add(tractorGroup);
+
+// Main chassis frame — low flat bed
+// Local: chassis center at (0, 0.75, 0) → top at local y=1.5
+boxG(tractorGroup, 8.0, CHASSIS_H, 2.6, MAT.tractorFrame, 0, 0.75, 0);
+
+// Side chassis rails (longitudinal)
+for (const rz of [-1.1, 1.1]) {
+  boxG(tractorGroup, 8.4, 0.22, 0.28, MAT.tractorFrame, 0, 1.61, rz);
+}
+// Cross members
+for (const rx of [-3.0, -1.0, 1.0, 3.0]) {
+  boxG(tractorGroup, 0.22, 0.22, 2.6, MAT.tractorFrame, rx, 1.61, 0);
+}
+
+// Cab — positioned at front (+X side, vehicle travels in +X direction)
+// Cab local: x=3.2, height from chassis top (local y=1.5) → local y center = 1.5+1.1=2.6
+boxG(tractorGroup, 2.2, 2.2, 2.5, MAT.tractorCab, 3.2, 2.6, 0);
+// Cab windshield
+boxG(tractorGroup, 0.08, 1.1, 2.0, MAT.tractorGlass, 4.32, 2.8, 0);
+// Cab roof visor
+boxG(tractorGroup, 0.5, 0.12, 2.5, MAT.tractorFrame, 4.2, 3.76, 0);
+// Cab side windows
+for (const wz of [-1.26, 1.26]) {
+  boxG(tractorGroup, 1.4, 0.9, 0.07, MAT.tractorGlass, 3.2, 2.8, wz);
+}
+// Rear panel
+boxG(tractorGroup, 0.2, 2.2, 2.5, MAT.tractorBody, 2.05, 2.6, 0);
+
+// Fifth-wheel coupler plate (on chassis, center)
+boxG(tractorGroup, 1.4, 0.18, 1.6, MAT.steel, 0, 1.6, 0);
+
+// Exhaust stack
+cylG(tractorGroup, 0.1, 0.1, 1.2, 8, MAT.steelDark, 4.2, 4.3, 0.9);
+// Stack cap
+cylG(tractorGroup, 0.16, 0.1, 0.15, 8, MAT.steelDark, 4.2, 4.97, 0.9);
+
+// Fuel tank (side)
+boxG(tractorGroup, 1.2, 0.55, 0.38, MAT.tractorBody, 1.8, 1.08, 1.42);
+
+// ── Wheels ── 4 axle positions, 2 wheels each side
+// Wheels are CylinderGeometry rotated 90° on Z-axis (rolling on X)
+const wheelR = 0.62, wheelW = 0.38;
+const wheelXPositions = [-2.8, 2.4]; // front-rear axle X
+for (const wx of wheelXPositions) {
+  for (const wz of [-1.5, 1.5]) {
+    // outer tire
+    cylG(tractorGroup, wheelR, wheelR, wheelW, 16, MAT.tractorWheel, wx, wheelR, wz, 0, 0, Math.PI/2);
+    // rim
+    cylG(tractorGroup, wheelR * 0.55, wheelR * 0.55, wheelW + 0.04, 10, MAT.tractorRim, wx, wheelR, wz, 0, 0, Math.PI/2);
+    // hub
+    cylG(tractorGroup, 0.1, 0.1, wheelW + 0.1, 6, MAT.steel, wx, wheelR, wz, 0, 0, Math.PI/2);
+  }
+}
+
+// Front bumper
+boxG(tractorGroup, 0.22, 0.7, 2.5, MAT.tractorFrame, 4.42, 1.95, 0);
+
+// Tow hitch bracket at rear
+boxG(tractorGroup, 0.35, 0.35, 0.35, MAT.steel, -4.2, 1.2, 0);
+
+// userData for tooltip
+tractorGroup.children[0].userData = {
+  name: 'Terminal Tractor T-07',
+  info1: 'Tipo: Yard Tractor / Veh. de transferencia',
+  info2: 'Estado: En posición de recepción'
+};
 
 // ── Lighting ──────────────────────────────────────────────────────────────────
 scene.add(new THREE.AmbientLight(0x1a2535, 1.2));
@@ -981,21 +1059,30 @@ renderer.domElement.addEventListener('mousemove', (e) => {
 renderer.domElement.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
 
 // ── Phase State Machine ───────────────────────────────────────────────────────
-const TROLL_TARGET_X  = -7.44;  // over target container (world X)
-const TROLL_DOCK_X    = 14;     // land-side drop point
-const SPREAD_CLAMP_Y  = 21.69;  // spreader Y when clamped on container top
-const SPREAD_LIFTED_Y = 30.5;   // spreader Y when fully lifted
+const TROLL_TARGET_X  = -7.44;
+const TROLL_DOCK_X    = 14;
+const SPREAD_CLAMP_Y  = 21.69;
+const SPREAD_LIFTED_Y = 30.5;
+
+// Phase 03 camera: smooth follow target
+let camFollowActive  = false;
+let camFollowStart   = null; // { camPos, camTarget } at start of follow
+const CAM_FOLLOW_OFFSET = new THREE.Vector3(0, 24, 42); // offset from vehicle
 
 let phase = 'idle';
 let phaseStartTime = 0;
 let containerDetached = false;
+let p3ContainerOnTruck = false; // container locked to tractor chassis
 
 const DURATIONS = {
   p1:          5000,
   p2_trolley:  1800,
   p2_descend:  2500,
   p2_lift:     1800,
-  p2_travel:   3000
+  p2_travel:   3000,
+  p3_lower:    3500,  // crane lowers container onto truck
+  p3_release:  2000,  // spreader rises and trolley retracts
+  p3_drive:    5500,  // truck drives to patio
 };
 
 function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
@@ -1019,16 +1106,38 @@ function setActiveBtn(id) {
   document.getElementById(id).classList.add('active');
 }
 
+// Smoothly tween camera to a new position/target over durationMs
+let camTween = null;
+function tweenCamera(toPos, toTarget, durationMs, now) {
+  camTween = {
+    fromPos:    camera.position.clone(),
+    fromTarget: controls.target.clone(),
+    toPos:      toPos.clone(),
+    toTarget:   toTarget.clone(),
+    start:      now,
+    duration:   durationMs,
+  };
+}
+
+function tickCamTween(now) {
+  if (!camTween) return;
+  const t = Math.min((now - camTween.start) / camTween.duration, 1.0);
+  const et = easeInOut(t);
+  camera.position.lerpVectors(camTween.fromPos, camTween.toPos, et);
+  controls.target.lerpVectors(camTween.fromTarget, camTween.toTarget, et);
+  if (t >= 1) camTween = null;
+}
+
 function tickPhase(now) {
-  if (phase === 'idle' || phase === 'p1_done' || phase === 'p2_done') return;
+  if (phase === 'idle' || phase === 'p1_done' || phase === 'p2_done' || phase === 'p3_done') return;
 
   const elapsed = now - phaseStartTime;
   const dur = DURATIONS[phase] || 3000;
   const t = Math.min(elapsed / dur, 1.0);
   const et = easeInOut(t);
 
+  // ── Phase 01 ──
   if (phase === 'p1') {
-    // Ship slides in from X=200 → X=0 (group world position)
     shipGroup.position.x = lerp(200, 0, et);
     if (t >= 1) {
       shipGroup.position.x = 0;
@@ -1036,6 +1145,7 @@ function tickPhase(now) {
       setTopbarPhase('FASE 01 COMPLETA', 'led-green');
     }
   }
+  // ── Phase 02 ──
   else if (phase === 'p2_trolley') {
     const tx = lerp(TROLL_INIT_X, TROLL_TARGET_X, et);
     moveTrolleyAndSpreader(tx, spreaderMesh.position.y);
@@ -1045,7 +1155,6 @@ function tickPhase(now) {
     const sy = lerp(SPREAD_HIGH_Y, SPREAD_CLAMP_Y, et);
     moveTrolleyAndSpreader(TROLL_TARGET_X, sy);
     if (t >= 1) {
-      // Detach container from teuGroup, add to scene at world position
       if (!containerDetached && targetContainerMesh) {
         const worldPos = new THREE.Vector3();
         targetContainerMesh.getWorldPosition(worldPos);
@@ -1061,11 +1170,7 @@ function tickPhase(now) {
     const sy = lerp(SPREAD_CLAMP_Y, SPREAD_LIFTED_Y, et);
     moveTrolleyAndSpreader(TROLL_TARGET_X, sy);
     if (containerDetached && targetContainerMesh) {
-      targetContainerMesh.position.set(
-        TROLL_TARGET_X,
-        sy - 0.25 - TEU_H / 2,
-        CRANE_Z_SPREADER
-      );
+      targetContainerMesh.position.set(TROLL_TARGET_X, sy - 0.25 - TEU_H / 2, CRANE_Z_SPREADER);
     }
     if (t >= 1) startPhase('p2_travel', now);
   }
@@ -1073,15 +1178,84 @@ function tickPhase(now) {
     const tx = lerp(TROLL_TARGET_X, TROLL_DOCK_X, et);
     moveTrolleyAndSpreader(tx, SPREAD_LIFTED_Y);
     if (containerDetached && targetContainerMesh) {
-      targetContainerMesh.position.set(
-        tx,
-        SPREAD_LIFTED_Y - 0.25 - TEU_H / 2,
-        CRANE_Z_SPREADER
-      );
+      targetContainerMesh.position.set(tx, SPREAD_LIFTED_Y - 0.25 - TEU_H / 2, CRANE_Z_SPREADER);
     }
     if (t >= 1) {
       phase = 'p2_done';
       setTopbarPhase('FASE 02 COMPLETA', 'led-green');
+    }
+  }
+  // ── Phase 03 ──
+  else if (phase === 'p3_lower') {
+    // Lower spreader + container from lifted height onto truck chassis
+    const sy = lerp(SPREAD_LIFTED_Y, SPREAD_ON_TRUCK_Y, et);
+    moveTrolleyAndSpreader(TROLL_DOCK_X, sy);
+    if (containerDetached && targetContainerMesh) {
+      // Descend container; clamp bottom to chassis top to prevent clipping
+      const containerY = Math.max(sy - 0.25 - TEU_H / 2, CONTAINER_ON_TRUCK_Y);
+      targetContainerMesh.position.set(TROLL_DOCK_X, containerY, CRANE_Z_SPREADER);
+    }
+    if (t >= 1) {
+      // Snap precisely to truck surface
+      if (targetContainerMesh) {
+        targetContainerMesh.position.set(TROLL_DOCK_X, CONTAINER_ON_TRUCK_Y, CRANE_Z_SPREADER);
+      }
+      p3ContainerOnTruck = true;
+      startPhase('p3_release', now);
+    }
+  }
+  else if (phase === 'p3_release') {
+    // Spreader rises while container stays seated on truck
+    const sy = lerp(SPREAD_ON_TRUCK_Y, SPREAD_LIFTED_Y, et);
+    moveTrolleyAndSpreader(TROLL_DOCK_X, sy);
+    // Container stays locked on truck — update X to match tractor (tractor hasn't moved yet)
+    if (targetContainerMesh && p3ContainerOnTruck) {
+      targetContainerMesh.position.set(
+        tractorGroup.position.x,
+        CONTAINER_ON_TRUCK_Y,
+        CRANE_Z_SPREADER
+      );
+    }
+    if (t >= 1) {
+      // Trolley retracts back toward crane center
+      moveTrolleyAndSpreader(TROLL_INIT_X, SPREAD_LIFTED_Y);
+      startPhase('p3_drive', now);
+      // Begin camera follow tween: smooth pan toward vehicle travel path
+      const vehicleWorldX = tractorGroup.position.x;
+      tweenCamera(
+        new THREE.Vector3(vehicleWorldX + 8, 38, 55),
+        new THREE.Vector3(vehicleWorldX + 14, 7, CRANE_Z_SPREADER),
+        1800,
+        now
+      );
+    }
+  }
+  else if (phase === 'p3_drive') {
+    // Vehicle + container advance in +X direction toward patio
+    const tractorX = lerp(TRACTOR_INIT_X, TRACTOR_DEST_X, et);
+    tractorGroup.position.x = tractorX;
+
+    // Container rigidly linked to tractor
+    if (targetContainerMesh && p3ContainerOnTruck) {
+      targetContainerMesh.position.set(tractorX, CONTAINER_ON_TRUCK_Y, CRANE_Z_SPREADER);
+    }
+
+    // Camera smoothly tracks the vehicle from a clean diagonal angle
+    if (!camTween) {
+      const lookAtTarget = new THREE.Vector3(tractorX + 5, 7, CRANE_Z_SPREADER);
+      const idealCamPos  = new THREE.Vector3(tractorX + 8, 38, 55);
+      // Gentle continuous follow — update controls.target without hard snapping
+      controls.target.lerp(lookAtTarget, 0.025);
+      camera.position.lerp(idealCamPos, 0.018);
+    }
+
+    if (t >= 1) {
+      tractorGroup.position.x = TRACTOR_DEST_X;
+      if (targetContainerMesh) {
+        targetContainerMesh.position.set(TRACTOR_DEST_X, CONTAINER_ON_TRUCK_Y, CRANE_Z_SPREADER);
+      }
+      phase = 'p3_done';
+      setTopbarPhase('FASE 03 COMPLETA', 'led-green');
     }
   }
 }
@@ -1091,9 +1265,17 @@ document.getElementById('btn-p1').addEventListener('click', () => {
   setActiveBtn('btn-p1');
   shipGroup.position.set(200, 0, -10);
   containerDetached = false;
+  p3ContainerOnTruck = false;
+  tractorGroup.position.set(TRACTOR_INIT_X, TRACTOR_Y, TRACTOR_Z_POS);
   moveTrolleyAndSpreader(TROLL_INIT_X, SPREAD_HIGH_Y);
+  if (targetContainerMesh && targetContainerMesh.parent === scene) {
+    scene.remove(targetContainerMesh);
+    targetContainerMesh.position.set(-7.44, 20.14, 0);
+    teuGroup.add(targetContainerMesh);
+  }
   setTopbarPhase('FASE 01: ARRIBO', 'led-yellow');
   startPhase('p1', performance.now());
+  camTween = null;
   document.querySelector('#topbar .brand span').textContent = 'TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 01';
 });
 
@@ -1101,7 +1283,8 @@ document.getElementById('btn-p2').addEventListener('click', () => {
   setActiveBtn('btn-p2');
   shipGroup.position.set(0, 0, -10);
   containerDetached = false;
-  // Restore target container to teuGroup if previously detached
+  p3ContainerOnTruck = false;
+  tractorGroup.position.set(TRACTOR_INIT_X, TRACTOR_Y, TRACTOR_Z_POS);
   if (targetContainerMesh && targetContainerMesh.parent === scene) {
     scene.remove(targetContainerMesh);
     targetContainerMesh.position.set(-7.44, 20.14, 0);
@@ -1110,18 +1293,58 @@ document.getElementById('btn-p2').addEventListener('click', () => {
   moveTrolleyAndSpreader(TROLL_INIT_X, SPREAD_HIGH_Y);
   setTopbarPhase('FASE 02: DESCARGA', 'led-yellow');
   startPhase('p2_trolley', performance.now());
+  camTween = null;
   document.querySelector('#topbar .brand span').textContent = 'TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 02';
 });
 
-document.getElementById('btn-p3').addEventListener('click', () => { setActiveBtn('btn-p3'); });
+document.getElementById('btn-p3').addEventListener('click', () => {
+  setActiveBtn('btn-p3');
+
+  // Ensure scene is in the correct end-of-p2 state
+  shipGroup.position.set(0, 0, -10);
+  tractorGroup.position.set(TRACTOR_INIT_X, TRACTOR_Y, TRACTOR_Z_POS);
+  p3ContainerOnTruck = false;
+
+  // Ensure container is detached and positioned at end-of-p2 location
+  if (targetContainerMesh) {
+    if (targetContainerMesh.parent !== scene) {
+      const worldPos = new THREE.Vector3();
+      targetContainerMesh.getWorldPosition(worldPos);
+      if (targetContainerMesh.parent) targetContainerMesh.parent.remove(targetContainerMesh);
+      scene.add(targetContainerMesh);
+    }
+    targetContainerMesh.position.set(TROLL_DOCK_X, SPREAD_LIFTED_Y - 0.25 - TEU_H / 2, CRANE_Z_SPREADER);
+    containerDetached = true;
+  }
+
+  // Crane trolley parked at dock-side drop point, spreader at high position
+  moveTrolleyAndSpreader(TROLL_DOCK_X, SPREAD_LIFTED_Y);
+
+  setTopbarPhase('FASE 03: TRASLADO', 'led-yellow');
+  startPhase('p3_lower', performance.now());
+  camTween = null;
+
+  // Tween camera to a clean side view centered on the drop point
+  tweenCamera(
+    new THREE.Vector3(TROLL_DOCK_X + 5, 45, 70),
+    new THREE.Vector3(TROLL_DOCK_X, 8, CRANE_Z_SPREADER),
+    1600,
+    performance.now()
+  );
+
+  document.querySelector('#topbar .brand span').textContent = 'TERMINAL DE CONTENEDORES  |  MODO: ANIMACIÓN / FASE 03';
+});
+
 document.getElementById('btn-p4').addEventListener('click', () => { setActiveBtn('btn-p4'); });
 document.getElementById('btn-pause').addEventListener('click', () => { phase = 'idle'; });
 
 // ── Render loop ───────────────────────────────────────────────────────────────
 function animate() {
   requestAnimationFrame(animate);
+  const now = performance.now();
   controls.update();
-  tickPhase(performance.now());
+  tickCamTween(now);
+  tickPhase(now);
   updateHoistCables();
   renderer.render(scene, camera);
 }
